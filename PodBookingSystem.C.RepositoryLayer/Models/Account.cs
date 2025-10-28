@@ -11,8 +11,6 @@ public partial class Account
 
     public string Name { get; set; }
 
-    public string Username { get; set; }
-
     public string Password { get; set; }
 
     public string Phone { get; set; }
@@ -21,11 +19,7 @@ public partial class Account
 
     public int RoleId { get; set; }
 
-    public bool? Vip { get; set; }
-
     public string AvatarUrl { get; set; }
 
     public virtual ICollection<Booking> Bookings { get; set; } = new List<Booking>();
-
-    public virtual Role Role { get; set; }
 }

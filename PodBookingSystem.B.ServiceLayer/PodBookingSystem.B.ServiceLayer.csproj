@@ -7,6 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="FirebaseAdmin" Version="3.4.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\PodBookingSystem.C.RepositoryLayer\PodBookingSystem.C.RepositoryLayer.csproj" />
   </ItemGroup>
 

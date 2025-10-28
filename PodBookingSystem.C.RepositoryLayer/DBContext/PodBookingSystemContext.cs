@@ -6,14 +6,10 @@ using PodBookingSystem.C.RepositoryLayer.Models;
 using System;
 using System.Collections.Generic;
 
-namespace PodBookingSystem.C.RepositoryLayer.DBConext;
+namespace PodBookingSystem.C.RepositoryLayer.DBContext;
 
 public partial class PodBookingSystemContext : DbContext
 {
-    public PodBookingSystemContext()
-    {
-    }
-
     public PodBookingSystemContext(DbContextOptions<PodBookingSystemContext> options)
         : base(options)
     {
@@ -29,8 +25,6 @@ public partial class PodBookingSystemContext : DbContext
 
     public virtual DbSet<Payment> Payments { get; set; }
 
-    public virtual DbSet<Role> Roles { get; set; }
-
     public virtual DbSet<Room> Rooms { get; set; }
 
     public virtual DbSet<RoomSlot> RoomSlots { get; set; }
@@ -38,10 +32,6 @@ public partial class PodBookingSystemContext : DbContext
     public virtual DbSet<RoomType> RoomTypes { get; set; }
 
     public virtual DbSet<Slot> Slots { get; set; }
-
-    //    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    //#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-    //        => optionsBuilder.UseSqlServer("Data Source=HakaryiPC\\SQL2306;Initial Catalog=PodBookingSystem;User ID=sa;Password=12345;Encrypt=False");
 
     public static string GetConnectionString(string connectionStringName)
     {
@@ -54,6 +44,10 @@ public partial class PodBookingSystemContext : DbContext
         return connectionString;
     }
 
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        => optionsBuilder.UseSqlServer(GetConnectionString("DefaultConnection"))
+        .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Account>(entity =>
@@ -63,8 +57,6 @@ public partial class PodBookingSystemContext : DbContext
             entity.ToTable("Account");
 
             entity.HasIndex(e => e.Email, "UQ__Account__AB6E61646C50EA94").IsUnique();
-
-            entity.HasIndex(e => e.Username, "UQ__Account__F3DBC572A2D572D8").IsUnique();
 
             entity.Property(e => e.AccId).HasColumnName("acc_id");
             entity.Property(e => e.AvatarUrl)
@@ -91,19 +83,6 @@ public partial class PodBookingSystemContext : DbContext
                 .IsUnicode(false)
                 .HasColumnName("phone");
             entity.Property(e => e.RoleId).HasColumnName("role_ID");
-            entity.Property(e => e.Username)
-                .IsRequired()
-                .HasMaxLength(255)
-                .IsUnicode(false)
-                .HasColumnName("username");
-            entity.Property(e => e.Vip)
-                .HasDefaultValue(false)
-                .HasColumnName("VIP");
-
-            entity.HasOne(d => d.Role).WithMany(p => p.Accounts)
-                .HasForeignKey(d => d.RoleId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Account__role_ID__3C69FB99");
         });
 
         modelBuilder.Entity<Booking>(entity =>
@@ -203,20 +182,6 @@ public partial class PodBookingSystemContext : DbContext
                 .HasForeignKey<Payment>(d => d.BookingId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Payment__booking__5535A963");
-        });
-
-        modelBuilder.Entity<Role>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK__Role__3213E83F5E258E59");
-
-            entity.ToTable("Role");
-
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.RoleName)
-                .IsRequired()
-                .HasMaxLength(255)
-                .IsUnicode(false)
-                .HasColumnName("Role_name");
         });
 
         modelBuilder.Entity<Room>(entity =>
