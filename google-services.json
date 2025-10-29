@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "711125771351",
+    "project_id": "podbookingsystem-e9ddb",
+    "storage_bucket": "podbookingsystem-e9ddb.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:711125771351:android:ca4143f21d2c7cce61ef12",
+        "android_client_info": {
+          "package_name": "com.example.g6podbookingsystem"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBOchv4eRgAdEFQdN7EdnVziTzk-DD5Hjg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
