@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using PodBookingSystem.B.ServiceLayer;
+using PodBookingSystem.B.ServiceLayer.DTO.Request;
+
 using PodBookingSystem.B.ServiceLayer.Helpers;
 using PodBookingSystem.C.RepositoryLayer.Models;
 
@@ -73,18 +75,13 @@ namespace PodBookingSystem.A.WebAPI.Controllers
 
         // 📌 POST: api/account
         [HttpPost]
-        public async Task<IActionResult> CreateAccount([FromBody]
-                                                        string email,
-                                                        string name,
-                                                        string phone,
-                                                        string avatarUrl)
+        public async Task<IActionResult> CreateAccount([FromBody] CreateAccountRequest request)
         {
             var account = new Account
             {
-                Email = email,
-                Name = name,
-                Phone = phone,
-                AvatarUrl = avatarUrl,
+                Email = request.Email,
+                Name = request.Name,
+                Phone = request.Phone,
                 Password = "",
                 RoleId = 1
             };

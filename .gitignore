@@ -7,3 +7,8 @@
 # Build
 bin/
 obj/
+<<<<<<< HEAD
+=======
+PodBookingSystem.A.WebAPI/firebase-service-account.json
+
+>>>>>>> KhangCode

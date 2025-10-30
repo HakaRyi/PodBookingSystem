@@ -18,7 +18,11 @@ namespace PodBookingSystem.B.ServiceLayer
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<AccountService> _logger;
         private readonly IConfiguration _configuration;
+<<<<<<< HEAD
         public AccountService(UnitOfWork unitOfWork, ILogger<AccountService> logger, IConfiguration configuration)
+=======
+        public AccountService(IUnitOfWork unitOfWork, ILogger<AccountService> logger, IConfiguration configuration)
+>>>>>>> KhangCode
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
