@@ -1,0 +1,6 @@
+@PodBookingSystem.A.WebAPI_HostAddress = http://localhost:5143
+
+GET {{PodBookingSystem.A.WebAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

@@ -1,0 +1,11 @@
+# Visual Studio
+.vs/
+*.suo
+*.user
+*.db
+
+# Build
+bin/
+obj/
+PodBookingSystem.A.WebAPI/firebase-service-account.json
+
