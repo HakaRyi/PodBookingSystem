@@ -3,14 +3,10 @@ using Google.Apis.Auth.OAuth2;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-<<<<<<< HEAD
-using PodBookingSystem.C.RepositoryLayer.DBContext;
-=======
 using PodBookingSystem.B.ServiceLayer;
 using PodBookingSystem.C.RepositoryLayer;
 using PodBookingSystem.C.RepositoryLayer.DBContext;
 using PodBookingSystem.C.RepositoryLayer.UnitOfWorks;
->>>>>>> KhangCode
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -22,13 +18,11 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-<<<<<<< HEAD
-=======
+
 builder.Services.AddScoped<AccountRepository>();
 builder.Services.AddScoped<AccountService>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
->>>>>>> KhangCode
 //DB config
 builder.Services.AddDbContext<PodBookingSystemContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));

@@ -19,7 +19,6 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-<<<<<<< HEAD
     "https": {
       "commandName": "Project",
       "dotnetRunMessages": true,
@@ -30,7 +29,6 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-=======
     //"https": {
     //  "commandName": "Project",
     //  "dotnetRunMessages": true,
@@ -41,7 +39,6 @@
     //    "ASPNETCORE_ENVIRONMENT": "Development"
     //  }
     //},
->>>>>>> KhangCode
     "IIS Express": {
       "commandName": "IISExpress",
       "launchBrowser": true,
