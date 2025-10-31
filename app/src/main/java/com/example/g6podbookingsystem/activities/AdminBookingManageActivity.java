@@ -9,8 +9,16 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.fragment.app.Fragment;
 
 import com.example.g6podbookingsystem.R;
+import com.example.g6podbookingsystem.fragments.admin_fragments.HistoryFragment;
+import com.example.g6podbookingsystem.fragments.admin_fragments.HomeFragment;
+import com.example.g6podbookingsystem.fragments.admin_fragments.ProfileFragment;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.example.g6podbookingsystem.utils.SharedPrefManager;
 import com.google.firebase.auth.FirebaseAuth;
 
@@ -29,8 +37,30 @@ public class AdminBookingManageActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_admin_booking_manage);
+      
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_nav);
 
-        // Initialize Shared Preferences
+        // Mặc định hiển thị HomeFragment
+        loadFragment(new HomeFragment());
+
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            Fragment selectedFragment = null;
+            int id = item.getItemId();
+
+            if (id == R.id.nav_home) {
+                selectedFragment = new HomeFragment();
+            } else if (id == R.id.nav_history) {
+                selectedFragment = new HistoryFragment();
+            } else if (id == R.id.nav_profile) {
+                selectedFragment = new ProfileFragment();
+            }
+
+            if (selectedFragment != null) {
+                loadFragment(selectedFragment);
+            }
+            return true;
+        });
+      
         pref = new SharedPrefManager(this);
 
         // Bind UI elements
@@ -69,6 +99,13 @@ public class AdminBookingManageActivity extends AppCompatActivity {
         btnManageBookings.setOnClickListener(v -> showToast("📅 Quản lý đặt phòng (Booking)"));
         btnManagePayments.setOnClickListener(v -> showToast("💳 Quản lý thanh toán (Payment)"));
         btnManageFeedback.setOnClickListener(v -> showToast("💬 Quản lý phản hồi (Feedback)"));
+    }
+
+    private void loadFragment(Fragment fragment) {
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.nav_host_fragment, fragment)
+                .commit();
     }
 
     private void showToast(String msg) {
