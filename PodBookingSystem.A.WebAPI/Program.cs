@@ -18,9 +18,17 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-
+//repo
 builder.Services.AddScoped<AccountRepository>();
+builder.Services.AddScoped<SlotRepository>();
+builder.Services.AddScoped<RoomSlotRepository>();
+
+//service
 builder.Services.AddScoped<AccountService>();
+builder.Services.AddScoped<SlotService>();
+builder.Services.AddScoped<RoomSlotService>();
+
+//unit of work
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 //DB config
