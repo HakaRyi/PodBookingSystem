@@ -31,4 +31,9 @@ public class SharedPrefManager {
     public void logout() {
         editor.clear().apply();
     }
+
+    public String getName() {
+        return prefs.getString(KEY_NAME, null);
+    }
+
 }

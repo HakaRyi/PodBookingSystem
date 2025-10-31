@@ -17,6 +17,7 @@ import com.example.g6podbookingsystem.R;
 import com.example.g6podbookingsystem.models.Account;
 import com.example.g6podbookingsystem.repositories.AccountRepository;
 import com.example.g6podbookingsystem.services.AccountApi;
+import com.example.g6podbookingsystem.utils.LoadingDialog;
 import com.example.g6podbookingsystem.utils.SharedPrefManager;
 import com.google.firebase.auth.FirebaseAuth;
 
@@ -31,6 +32,10 @@ public class LoginActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private AccountApi accountApi;
     private SharedPrefManager pref;
+    private LoadingDialog loadingDialog;
+
+    private static final String ADMIN_EMAIL = "admin@pod.com";
+    private static final String ADMIN_PASSWORD = "Admin123!";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +65,27 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
+        // 1) Nếu là hardcoded admin -> bỏ qua Firebase, lưu và chuyển thẳng
+        if (email.equalsIgnoreCase(ADMIN_EMAIL) && password.equals(ADMIN_PASSWORD)) {
+            Account admin = new Account();
+            admin.accId = 0;
+            admin.email = ADMIN_EMAIL;
+            admin.name = "Administrator";
+            admin.phone = "";
+            admin.avatarUrl = "";
+            admin.roleId = 1;
+
+            pref.saveUser(admin);
+
+            Toast.makeText(this, "Đăng nhập admin thành công (local)", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(LoginActivity.this, AdminBookingManageActivity.class));
+            finish();
+            return;
+        }
+
+        // 2) Thực hiện Firebase auth + backend lookup (flow cũ)
+        loadingDialog.show("Đang đăng nhập...");
+
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
@@ -81,7 +107,9 @@ public class LoginActivity extends AppCompatActivity {
                             }
                         });
                     } else {
-                        Toast.makeText(this, "Sai email hoặc mật khẩu", Toast.LENGTH_SHORT).show();
+                        loadingDialog.hide();
+                        String err = (task.getException() != null) ? task.getException().getMessage() : "Sai email hoặc mật khẩu";
+                        Toast.makeText(LoginActivity.this, "Firebase: " + err, Toast.LENGTH_SHORT).show();
                     }
                 });
     }
