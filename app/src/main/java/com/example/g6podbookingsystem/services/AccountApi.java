@@ -12,11 +12,11 @@ import retrofit2.http.Query;
 
 public interface AccountApi {
     //Dùng mẹ này để đăng ký
-    @POST("api/account")
-    Call<Void> createAccount(@Body CreateAccountRequest request);
+    @POST("api/Account")
+    Call<Account> createAccount(@Body CreateAccountRequest request);
 
     //Mẹ này dùng để đăng nhập
-    @GET("api/account/by-email/{email}")
+    @GET("api/Account/by-email/{email}")
     Call<Account> getAccountByEmail(@Path("email") String email);
 
 }

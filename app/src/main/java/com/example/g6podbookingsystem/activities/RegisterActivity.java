@@ -19,6 +19,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.example.g6podbookingsystem.R;
 import com.example.g6podbookingsystem.dto.CreateAccountRequest;
+import com.example.g6podbookingsystem.models.Account;
 import com.example.g6podbookingsystem.repositories.AccountRepository;
 import com.example.g6podbookingsystem.services.AccountApi;
 import com.example.g6podbookingsystem.utils.LoadingDialog;
@@ -43,6 +44,8 @@ public class RegisterActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_register);
+
+        loadingDialog = new LoadingDialog(this);
 
         mAuth = FirebaseAuth.getInstance();
         accountApi = AccountRepository.getAccountService();
@@ -75,9 +78,9 @@ public class RegisterActivity extends AppCompatActivity {
                         // Gọi API backend tạo hồ sơ
                         loadingDialog.show("Đang tải dữ liệu...");
                         accountApi.createAccount(request)
-                                .enqueue(new Callback<Void>() {
+                                .enqueue(new Callback<Account>() {
                                     @Override
-                                    public void onResponse(Call<Void> call, Response<Void> response) {
+                                    public void onResponse(Call<Account> call, Response<Account> response) {
                                         loadingDialog.hide();
                                         if (response.isSuccessful()) {
                                             Toast.makeText(RegisterActivity.this, "Đăng ký thành công!", Toast.LENGTH_SHORT).show();
@@ -88,7 +91,7 @@ public class RegisterActivity extends AppCompatActivity {
                                     }
 
                                     @Override
-                                    public void onFailure(Call<Void> call, Throwable t) {
+                                    public void onFailure(Call<Account> call, Throwable t) {
                                         loadingDialog.hide();
                                         Toast.makeText(RegisterActivity.this, "Lỗi kết nối server", Toast.LENGTH_SHORT).show();
                                     }
