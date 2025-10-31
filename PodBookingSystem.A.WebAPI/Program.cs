@@ -25,10 +25,18 @@ builder.Services.AddScoped<RoomSlotRepository>();
 
 //service
 builder.Services.AddScoped<AccountService>();
+
 builder.Services.AddScoped<SlotService>();
 builder.Services.AddScoped<RoomSlotService>();
 
 //unit of work
+
+builder.Services.AddScoped<BookingService>();
+builder.Services.AddScoped<BookingRepository>();
+builder.Services.AddScoped<BookingDetailRepository>();
+builder.Services.AddScoped<RoomService>();
+builder.Services.AddScoped<RoomRepository>();
+
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 //DB config
@@ -48,6 +56,12 @@ builder.Services.AddDbContext<PodBookingSystemContext>(options =>
 //                Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:SecretKey"]))
 //        };
 //    });
+builder.Services.AddControllers()
+    .AddJsonOptions(x =>
+    {
+        x.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+        x.JsonSerializerOptions.WriteIndented = true;
+    });
 
 FirebaseApp.Create(new AppOptions()
 {
