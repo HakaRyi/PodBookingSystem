@@ -10,6 +10,7 @@ namespace PodBookingSystem.C.RepositoryLayer.UnitOfWorks
     public interface IUnitOfWork
     { 
         AccountRepository AccountRepository { get; }
+        FeedbackRepository FeedbackRepository { get; }
         BookingRepository BookingRepository { get; }
         BookingDetailRepository BookingDetailRepository { get; }
         RoomRepository RoomRepository { get; }
@@ -20,6 +21,7 @@ namespace PodBookingSystem.C.RepositoryLayer.UnitOfWorks
         private readonly PodBookingSystemContext _context;
 
         private AccountRepository accountRepository;
+        private FeedbackRepository feedbackRepository;
         private BookingRepository bookingRepository;
         private BookingDetailRepository bookingDetailRepository;
         private RoomRepository roomRepository;
@@ -33,6 +35,14 @@ namespace PodBookingSystem.C.RepositoryLayer.UnitOfWorks
             get
             {
                 return accountRepository ??= new AccountRepository(_context);
+            }
+        }
+
+        public FeedbackRepository FeedbackRepository
+        {
+            get
+            {
+                return feedbackRepository ??= new FeedbackRepository(_context);
             }
         }
         public BookingRepository BookingRepository
