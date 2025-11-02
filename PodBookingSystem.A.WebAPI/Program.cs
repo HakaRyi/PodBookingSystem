@@ -34,8 +34,12 @@ builder.Services.AddScoped<RoomSlotService>();
 builder.Services.AddScoped<BookingService>();
 builder.Services.AddScoped<BookingRepository>();
 builder.Services.AddScoped<BookingDetailRepository>();
+builder.Services.AddScoped<BookingDetailService>();
 builder.Services.AddScoped<RoomService>();
 builder.Services.AddScoped<RoomRepository>();
+builder.Services.AddScoped<PaymentService>();
+builder.Services.AddScoped<PaymentRepository>();
+builder.Services.AddScoped<PayOsPaymentService>();
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
@@ -67,7 +71,25 @@ FirebaseApp.Create(new AppOptions()
 {
     Credential = GoogleCredential.FromFile("firebase-service-account.json")
 });
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        const string projectId = "podbookingsystem-e9ddb";
 
+        options.Authority = $"https://securetoken.google.com/{projectId}";
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = $"https://securetoken.google.com/{projectId}",
+            ValidateAudience = true,
+            ValidAudience = projectId,
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.FromMinutes(5)
+        };
+
+        options.Audience = projectId;
+        options.MapInboundClaims = false; 
+    });
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

@@ -78,6 +78,24 @@ namespace PodBookingSystem.C.RepositoryLayer
             .Include(b => b.Payment)
             .Include(b => b.Feedback)
             .FirstOrDefaultAsync(b => b.BookingId == bookingId);
+        public async Task<Booking> GetExistingPendingBooking(int userId)
+            => await _context.Bookings
+            .Include(b => b.BookingDetails)
+            .Include(b => b.User)
+            .Include(b => b.RoomSlots)
+            .Include(b => b.Payment)
+            .Include(b => b.Feedback)
+            .FirstOrDefaultAsync(b => b.UserId == userId && b.Status == "PENDING");
+        public async Task<Booking?> GetBookingByDetailAsync(int detailId)
+        {
+            return await _context.Bookings
+                .Include(b => b.BookingDetails)
+                .Include(b => b.User)
+                .Include(b => b.RoomSlots)
+                .Include(b => b.Payment)
+                .Include(b => b.Feedback)
+                .FirstOrDefaultAsync(b => b.BookingDetails.Any(d => d.BookingDetailId == detailId));
+        }
         public async Task<int> CretaeAsync(Booking booking)
         {
             _context.Bookings.Add(booking);

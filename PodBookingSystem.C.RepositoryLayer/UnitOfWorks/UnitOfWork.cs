@@ -14,6 +14,8 @@ namespace PodBookingSystem.C.RepositoryLayer.UnitOfWorks
         BookingRepository BookingRepository { get; }
         BookingDetailRepository BookingDetailRepository { get; }
         RoomRepository RoomRepository { get; }
+        PaymentRepository PaymentRepository { get; }
+        RoomSlotRepository RoomSlotRepository { get; }
 
     }
     public class UnitOfWork : IUnitOfWork
@@ -25,6 +27,8 @@ namespace PodBookingSystem.C.RepositoryLayer.UnitOfWorks
         private BookingRepository bookingRepository;
         private BookingDetailRepository bookingDetailRepository;
         private RoomRepository roomRepository;
+        private PaymentRepository paymentRepository;
+        private RoomSlotRepository roomSlotRepository;
 
         public UnitOfWork(PodBookingSystemContext context)
         {
@@ -59,6 +63,14 @@ namespace PodBookingSystem.C.RepositoryLayer.UnitOfWorks
         {
             get { return roomRepository ??= new RoomRepository(_context); }
 
+        }
+        public PaymentRepository PaymentRepository
+        {
+            get { return paymentRepository ??= new PaymentRepository(_context); }
+        }
+        public RoomSlotRepository RoomSlotRepository
+        {
+            get { return roomSlotRepository ??= new RoomSlotRepository(_context); }
         }
 
 
