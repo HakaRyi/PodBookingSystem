@@ -16,7 +16,7 @@ namespace PodBookingSystem.C.RepositoryLayer
         {
             _context = context;
         }
-        public async Task<List<BookingDetail>> GetBookingsAsync() => await _context.BookingDetails
+        public async Task<List<BookingDetail>> GetBookingDetailsAsync() => await _context.BookingDetails
             .Include(b => b.Room).ThenInclude(b => b.Type)
             .OrderByDescending(b => b.Timestamp)
             .ToListAsync();

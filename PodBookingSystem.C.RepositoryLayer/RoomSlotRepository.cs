@@ -1,11 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore;
-using PodBookingSystem.C.RepositoryLayer.DBContext;
-using PodBookingSystem.C.RepositoryLayer.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using PodBookingSystem.C.RepositoryLayer.DBContext;
+using PodBookingSystem.C.RepositoryLayer.Models;
 
 namespace PodBookingSystem.C.RepositoryLayer
 {
@@ -57,6 +58,18 @@ namespace PodBookingSystem.C.RepositoryLayer
                 return await _context.SaveChangesAsync();
             }
             return 0;
+        }
+        public async Task<bool> AnyAsync(Expression<Func<RoomSlot, bool>> predicate)
+        {
+            return await _context.RoomSlots.AnyAsync(predicate);
+        }
+
+        public async Task DeleteByBookingDetailId(int detailId)
+        {
+            var slots = await _context.RoomSlots
+                .Where(rs => rs.Booking.BookingDetails.Any(d => d.BookingDetailId == detailId))
+                .ToListAsync();
+            _context.RoomSlots.RemoveRange(slots);
         }
     }
 }

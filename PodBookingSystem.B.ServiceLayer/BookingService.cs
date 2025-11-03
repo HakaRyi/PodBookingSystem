@@ -48,6 +48,19 @@ namespace PodBookingSystem.B.ServiceLayer
             }
             return new Booking();
         }
+        public async Task<Booking> GetBookingPendingAsync(int userId)
+        {
+            try
+            {
+                return await _unitOfWork.BookingRepository.GetExistingPendingBooking(userId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Lỗi khi lấy danh sách booking");
+                throw new Exception("Không thể lấy danh sách booking. Vui lòng thử lại sau.", ex);
+            }
+            return new Booking();
+        }
         public async Task<int> CreateAsync(Booking booking, int userId)
         {
             try
@@ -57,7 +70,7 @@ namespace PodBookingSystem.B.ServiceLayer
                     UserId = userId,
                     BookingDate = DateOnly.FromDateTime(DateTime.Now),
                     Total = 0,
-                    Status = "BOOKED"
+                    Status = "PENDING"
 
                 };
                 await _unitOfWork.BookingRepository.CretaeAsync(newBooking);
@@ -71,7 +84,7 @@ namespace PodBookingSystem.B.ServiceLayer
                         throw new Exception($"Phòng có ID {detail.RoomId} không tồn tại");
                     }
                     decimal price = 0;
-                    if(detail.BookingType == "DAY")
+                    if (detail.BookingType == "DAY")
                     {
                         price = room.PriceDay ?? 0;
                     }
@@ -79,22 +92,50 @@ namespace PodBookingSystem.B.ServiceLayer
                     {
                         price = room.Price ?? 0;
                     }
-                        var newDetail = new BookingDetail
-                        {
-                            BookingId = newBooking.BookingId,
-                            RoomId = detail.RoomId,
-                            BookingType = detail.BookingType,
-                            TotalPrice = price,
-                            StartTime = detail.StartTime,
-                            EndTime = detail.EndTime,
-                            Timestamp = DateTime.Now
-                        };
+                    var newDetail = new BookingDetail
+                    {
+                        BookingId = newBooking.BookingId,
+                        RoomId = detail.RoomId,
+                        BookingType = detail.BookingType,
+                        TotalPrice = price,
+                        StartTime = detail.StartTime,
+                        EndTime = detail.EndTime,
+                        Timestamp = DateTime.Now
+                    };
                     total += price;
                     await _unitOfWork.BookingDetailRepository.CretaeAsync(newDetail);
-                   
+
                 }
                 newBooking.Total = total;
                 await _unitOfWork.BookingRepository.UpdateAsync(newBooking);
+                return 1;
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Lỗi khi create booking");
+                throw new Exception("Không thể create booking. Vui lòng thử lại sau.", ex);
+            }
+            return 0;
+        }
+        public async Task<int> CreateAsync2(int userId)
+        {
+            try
+            {
+                var bookingExisting = await _unitOfWork.BookingRepository.GetExistingPendingBooking(userId);
+                if (bookingExisting != null)
+                {
+                    throw new InvalidOperationException("You already have a pending booking");
+                }
+                var newBooking = new Booking()
+                {
+                    UserId = userId,
+                    BookingDate = DateOnly.FromDateTime(DateTime.Now),
+                    Total = 0,
+                    Status = "PENDING"
+
+                };
+                await _unitOfWork.BookingRepository.CretaeAsync(newBooking);
                 return 1;
 
             }
