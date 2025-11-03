@@ -32,6 +32,7 @@ builder.Services.AddScoped<AccountService>();
 
 builder.Services.AddScoped<SlotService>();
 builder.Services.AddScoped<RoomSlotService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 //unit of work
 

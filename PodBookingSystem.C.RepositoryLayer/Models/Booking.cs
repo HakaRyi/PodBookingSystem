@@ -17,6 +17,9 @@ public partial class Booking
 
     public string Status { get; set; }
 
+    public string? CancelReason { get; set; }
+    public DateTime? CancelDate { get; set; }
+
     public virtual ICollection<BookingDetail> BookingDetails { get; set; } = new List<BookingDetail>();
 
     public virtual Feedback Feedback { get; set; }
