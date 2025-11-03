@@ -20,6 +20,8 @@ import android.widget.Toast;
 import com.example.g6podbookingsystem.R;
 import com.example.g6podbookingsystem.adapters.BookingAdapter;
 import com.example.g6podbookingsystem.models.Booking;
+import com.example.g6podbookingsystem.repositories.BookingRepository;
+import com.example.g6podbookingsystem.services.BookingApi;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -27,18 +29,16 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link HomeFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 public class HomeFragment extends Fragment {
 
     private RecyclerView recyclerView;
     private EditText searchBox;
     private ImageButton btnFilterDate;
     private BookingAdapter adapter;
-    private List<Booking> bookingList;
+    private List<Booking> bookingList = new ArrayList<>();
     private Calendar selectedDate = Calendar.getInstance();
 
     @Nullable
@@ -51,14 +51,15 @@ public class HomeFragment extends Fragment {
         searchBox = view.findViewById(R.id.editSearchBooking);
         btnFilterDate = view.findViewById(R.id.btnFilterDate);
 
-        bookingList = getMockBookings();
+
         adapter = new BookingAdapter(bookingList);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(adapter);
 
         // Chọn ngày
         btnFilterDate.setOnClickListener(v -> showDatePicker());
-
+        // Chạy Hàm
+        loadBookings();
         return view;
     }
 
@@ -74,11 +75,31 @@ public class HomeFragment extends Fragment {
         }, year, month, day).show();
     }
 
-    private List<Booking> getMockBookings() {
-        List<Booking> list = new ArrayList<>();
-        list.add(new Booking(1, "Nguyễn Văn A", "2025-10-31", 150000, "Pending"));
-        list.add(new Booking(2, "Trần Thị B", "2025-10-31", 200000, "CheckedIn"));
-        list.add(new Booking(3, "Lê Minh C", "2025-10-30", 180000, "CheckedOut"));
-        return list;
+    private void loadBookings() {
+        BookingApi api = BookingRepository.getBookingService();
+
+        api.getAllBookings().enqueue(new Callback<List<Booking>>() {
+            @Override
+            public void onResponse(Call<List<Booking>> call, Response<List<Booking>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    bookingList.clear();
+                    for (Booking b : response.body()) {
+                        if ("BOOKED".equalsIgnoreCase(b.getStatus()) ||
+                                "CHECK-IN".equalsIgnoreCase(b.getStatus())) {
+                            bookingList.add(b);
+                        }
+                    }
+
+                    adapter.notifyDataSetChanged();
+                } else {
+                    Toast.makeText(getContext(), "Không có dữ liệu Booking", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Booking>> call, Throwable t) {
+                Toast.makeText(getContext(), "Lỗi tải dữ liệu: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }
