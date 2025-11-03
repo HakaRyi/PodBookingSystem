@@ -15,11 +15,13 @@ namespace PodBookingSystem.A.WebAPI.Controllers
         private readonly BookingService _bookingService;
         private readonly PayOsPaymentService _payOsPaymentService;
         private readonly AccountService _accountService;
-        public BookingController(BookingService bookingService, PayOsPaymentService payOsPaymentService, AccountService accountService )
+        private readonly IEmailService _emailService;
+        public BookingController(BookingService bookingService, PayOsPaymentService payOsPaymentService, AccountService accountService, IEmailService emailService )
         {
             _bookingService = bookingService;
             _payOsPaymentService = payOsPaymentService;
             _accountService = accountService;
+            _emailService = emailService;
         }
 
         // GET: api/<BookingController>
@@ -99,6 +101,35 @@ namespace PodBookingSystem.A.WebAPI.Controllers
         public async Task<int> UpdateAvailable(int id)
         {
             return await _bookingService.UpdateStatusAVAILABLEAsync(id);
+        }
+
+        [HttpPut("Cancel/{id}")]
+        public async Task<IActionResult> UpdateCancel(int id, [FromQuery] string message)
+        {
+            var result = await _bookingService.UpdateStatusCANCELEDAsync(id, message);
+            if (!result.Success)
+                return BadRequest("Hủy đặt phòng thất bại");
+            var booking = result.booking;
+
+            if (booking?.User?.Email != null)
+            {
+                await _emailService.SendEmailAsync(
+                    booking.User.Email,
+                    "Thông báo hủy đặt phòng",
+                    $@"Xin chào {booking.User.Name},
+                    Booking #{booking.BookingId} của bạn đã bị hủy.
+
+                    Lý do: {message}
+                    
+                    Mọi khoảng tiền mà bạn đã thanh toán sẽ được hoàn lại trong vòng 12h sau khi nhận được thông báo này. Vui lòng giữ tin nhắn này để làm bằng chứng trước tòa
+                    Nếu có thắc mắc, vui lòng liên hệ đội ngũ hỗ trợ.
+                    Trân trọng,
+                    G6 Pod Booking System."
+                                    );
+                                }
+
+            return Ok(1);
+
         }
         // DELETE api/<BookingController>/5
         [HttpDelete("{id}")]

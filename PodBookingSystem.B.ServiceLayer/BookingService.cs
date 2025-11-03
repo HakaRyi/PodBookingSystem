@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using PodBookingSystem.C.RepositoryLayer.Models;
@@ -229,6 +230,23 @@ namespace PodBookingSystem.B.ServiceLayer
             {
             }
             return 0;
+        }
+
+        public async Task<(bool Success, Booking booking)> UpdateStatusCANCELEDAsync(int id, string reason)
+        {
+            try
+            {
+                var exisitingBooking = await GetBookingAsync(id);
+                exisitingBooking.Status = "CANCELED";
+                exisitingBooking.CancelReason = reason;
+                exisitingBooking.CancelDate = DateTime.Now;
+                await _unitOfWork.BookingRepository.UpdateAsync(exisitingBooking);
+                return (true, exisitingBooking);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi khi cập nhật trạng thái hủy đặt phòng", ex);
+            }
         }
         public async Task<bool> DeleteAsync(int id)
         {

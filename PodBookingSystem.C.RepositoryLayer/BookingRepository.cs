@@ -18,6 +18,7 @@ namespace PodBookingSystem.C.RepositoryLayer
         }
         public async Task<List<Booking>> GetBookingsAsync() => await _context.Bookings
             .Include(b => b.BookingDetails)
+                .ThenInclude(bd => bd.Room)
             .Include(b => b.User)
             .Include(b => b.RoomSlots)
             .Include(b => b.Payment)
@@ -26,6 +27,7 @@ namespace PodBookingSystem.C.RepositoryLayer
             .ToListAsync();
         public async Task<List<Booking>> GetBookingsByBOOKEDAsync() => await _context.Bookings
             .Include(b => b.BookingDetails)
+                .ThenInclude(bd => bd.Room)
             .Include(b => b.User)
             .Include(b => b.RoomSlots)
             .Include(b => b.Payment)
@@ -35,6 +37,7 @@ namespace PodBookingSystem.C.RepositoryLayer
             .ToListAsync();
         public async Task<List<Booking>> GetBookingsByAVAILABLEAsync() => await _context.Bookings
             .Include(b => b.BookingDetails)
+                .ThenInclude(bd => bd.Room)
             .Include(b => b.User)
             .Include(b => b.RoomSlots)
             .Include(b => b.Payment)
@@ -44,6 +47,7 @@ namespace PodBookingSystem.C.RepositoryLayer
             .ToListAsync();
         public async Task<List<Booking>> GetBookingsByDONEAsync() => await _context.Bookings
             .Include(b => b.BookingDetails)
+                .ThenInclude(bd => bd.Room)
             .Include(b => b.User)
             .Include(b => b.RoomSlots)
             .Include(b => b.Payment)
@@ -53,6 +57,7 @@ namespace PodBookingSystem.C.RepositoryLayer
             .ToListAsync();
         public async Task<List<Booking>> GetBookingsByCHECKINAsync() => await _context.Bookings
             .Include(b => b.BookingDetails)
+                .ThenInclude(bd => bd.Room)
             .Include(b => b.User)
             .Include(b => b.RoomSlots)
             .Include(b => b.Payment)
@@ -62,6 +67,7 @@ namespace PodBookingSystem.C.RepositoryLayer
             .ToListAsync();
         public async Task<List<Booking>> GetBookingsByCHECKOUTAsync() => await _context.Bookings
             .Include(b => b.BookingDetails)
+                .ThenInclude(bd => bd.Room)
             .Include(b => b.User)
             .Include(b => b.RoomSlots)
             .Include(b => b.Payment)
@@ -73,6 +79,7 @@ namespace PodBookingSystem.C.RepositoryLayer
         public async Task<Booking> GetByIdAsync(int bookingId) 
             => await _context.Bookings
             .Include(b => b.BookingDetails)
+                .ThenInclude(bd => bd.Room)
             .Include(b => b.User)
             .Include(b => b.RoomSlots)
             .Include(b => b.Payment)
