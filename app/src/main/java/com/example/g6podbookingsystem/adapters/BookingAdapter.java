@@ -1,5 +1,6 @@
 package com.example.g6podbookingsystem.adapters;
 
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,10 +14,17 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.g6podbookingsystem.R;
+import com.example.g6podbookingsystem.activities.BookingDetailActivity;
 import com.example.g6podbookingsystem.models.Booking;
 import com.example.g6podbookingsystem.models.BookingDetail;
+import com.example.g6podbookingsystem.repositories.BookingRepository;
+import com.example.g6podbookingsystem.services.BookingApi;
 
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingViewHolder> {
 
@@ -49,6 +57,8 @@ public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingV
         Button btnCheckIn, btnCheckOut;
         ImageView imgAvatar;
 
+        BookingApi bookingApi;
+
         public BookingViewHolder(@NonNull View itemView) {
             super(itemView);
             tvCustomer = itemView.findViewById(R.id.tvCustomer);
@@ -60,6 +70,7 @@ public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingV
         }
 
         public void bind(Booking b) {
+
             String customerName = (b.getUser() != null)
                     ? b.getUser().getName()
                     : "Khách #" + b.getUserId();
@@ -85,25 +96,73 @@ public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingV
             tvTime.setText(time);
             tvStatus.setText("Trạng thái: " + b.getStatus());
 
-            btnCheckIn.setEnabled(!b.isCheckedIn() && !"CheckedOut".equalsIgnoreCase(b.getStatus()));
-            btnCheckOut.setEnabled(b.isCheckedIn() && !b.isCheckedOut());
+            switch (b.getStatus().toUpperCase()) {
+                case "BOOKED":
+                    btnCheckIn.setVisibility(View.VISIBLE);
+                    btnCheckOut.setVisibility(View.GONE);
+                    break;
+
+                case "CHECK-IN":
+                    btnCheckIn.setVisibility(View.GONE);
+                    btnCheckOut.setVisibility(View.VISIBLE);
+                    break;
+
+                case "CHECK-OUT":
+                default:
+                    btnCheckIn.setVisibility(View.GONE);
+                    btnCheckOut.setVisibility(View.GONE);
+                    break;
+            }
 
             btnCheckIn.setOnClickListener(v -> {
-                b.setStatus("CheckedIn");
-                notifyItemChanged(getAdapterPosition());
-                Toast.makeText(itemView.getContext(), "✅ Check-in thành công", Toast.LENGTH_SHORT).show();
+                bookingApi = BookingRepository.getBookingService();
+                bookingApi.checkIn(b.getBookingId()).enqueue(new Callback<Integer>() {
+                    @Override
+                    public void onResponse(Call<Integer> call, Response<Integer> response) {
+                        if(response.isSuccessful() && response.body() != null && response.body() > 0){
+                            b.setStatus("CHECK-IN");
+                            notifyItemChanged(getAdapterPosition());
+                            Toast.makeText(itemView.getContext(), "✅ Check-in thành công", Toast.LENGTH_SHORT).show();
+                        }else{
+                            Toast.makeText(itemView.getContext(), "check-in thất bại", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<Integer> call, Throwable t) {
+                        Toast.makeText(itemView.getContext(), "Lỗi server", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+
             });
 
             btnCheckOut.setOnClickListener(v -> {
-                b.setStatus("CheckedOut");
-                notifyItemChanged(getAdapterPosition());
-                Toast.makeText(itemView.getContext(), "🏁 Check-out thành công", Toast.LENGTH_SHORT).show();
+                bookingApi = BookingRepository.getBookingService();
+                bookingApi.checkOut(b.getBookingId()).enqueue(new Callback<Integer>() {
+                    @Override
+                    public void onResponse(Call<Integer> call, Response<Integer> response) {
+                        if(response.isSuccessful() && response.body() != null && response.body() > 0){
+                            b.setStatus("CHECK-OUT");
+                            notifyItemChanged(getAdapterPosition());
+                            Toast.makeText(itemView.getContext(), "✅ Check-out thành công", Toast.LENGTH_SHORT).show();
+                        }
+                        else{
+                            Toast.makeText(itemView.getContext(), "check-out thất bại", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<Integer> call, Throwable t) {
+                        Toast.makeText(itemView.getContext(), "Lỗi server", Toast.LENGTH_SHORT).show();
+                    }
+                });
             });
 
             itemView.setOnClickListener(v -> {
-                // TODO: mở màn chi tiết Booking nếu cần
-                Toast.makeText(itemView.getContext(),
-                        "Chi tiết booking #" + b.getBookingId(), Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(itemView.getContext(), BookingDetailActivity.class);
+                intent.putExtra("bookingId", b.getBookingId());
+                itemView.getContext().startActivity(intent);
             });
         }
     }

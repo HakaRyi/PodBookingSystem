@@ -13,6 +13,16 @@ public class Booking implements Serializable {
     private String customerName; // thêm để dễ hiển thị
     private List<BookingDetail> bookingDetails;
     private Account user;
+    private Feedback feedback;
+    public Feedback getFeedback() {
+        return feedback;
+    }
+
+    public void setFeedback(Feedback feedback) {
+        this.feedback = feedback;
+    }
+
+
 
     public Account getUser() {
         return user;

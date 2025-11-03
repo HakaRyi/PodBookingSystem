@@ -43,6 +43,8 @@ public class LoginActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_login);
 
+        loadingDialog = new LoadingDialog(this);
+
         mAuth = FirebaseAuth.getInstance();
         accountApi = AccountRepository.getAccountService();
         pref = new SharedPrefManager(this);

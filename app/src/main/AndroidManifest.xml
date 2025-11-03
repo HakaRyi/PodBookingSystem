@@ -16,6 +16,12 @@
         android:theme="@style/Theme.G6PodBookingSystem"
         android:usesCleartextTraffic="true">
         <activity
+            android:name=".activities.AdminBookingHistoryActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.BookingDetailActivity"
+            android:exported="false" />
+        <activity
             android:name=".activities.AdminBookingManageActivity"
             android:exported="false" />
         <activity
