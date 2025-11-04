@@ -43,8 +43,6 @@ public class LoginActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_login);
 
-        loadingDialog = new LoadingDialog(this);
-
         mAuth = FirebaseAuth.getInstance();
         accountApi = AccountRepository.getAccountService();
         pref = new SharedPrefManager(this);
@@ -53,7 +51,7 @@ public class LoginActivity extends AppCompatActivity {
         edtPassword = findViewById(R.id.edtPassword);
         btnLogin = findViewById(R.id.btnLogin);
         tvRegister = findViewById(R.id.tvRegister);
-
+        loadingDialog = new LoadingDialog(this);
         btnLogin.setOnClickListener(v -> login());
         tvRegister.setOnClickListener(v -> startActivity(new Intent(this, RegisterActivity.class)));
     }
@@ -90,6 +88,7 @@ public class LoginActivity extends AppCompatActivity {
 
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(task -> {
+                    loadingDialog.hide();
                     if (task.isSuccessful()) {
                         accountApi.getAccountByEmail(email).enqueue(new Callback<Account>() {
                             @Override
@@ -98,6 +97,8 @@ public class LoginActivity extends AppCompatActivity {
                                     pref.saveUser(response.body());
                                     Toast.makeText(LoginActivity.this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show();
                                     // chuyển sang màn hình chính
+                                    startActivity(new Intent(LoginActivity.this, DashboardActivity.class));  // ← Thêm
+                                    finish();  // ← Thêm
                                 } else {
                                     Toast.makeText(LoginActivity.this, "Không tìm thấy hồ sơ!", Toast.LENGTH_SHORT).show();
                                 }

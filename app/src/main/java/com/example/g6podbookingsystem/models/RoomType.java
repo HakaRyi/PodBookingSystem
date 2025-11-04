@@ -1,6 +1,8 @@
 package com.example.g6podbookingsystem.models;
 
-public class RoomType {
+import java.io.Serializable;
+
+public class RoomType implements Serializable {
     private int typeId;
     private String name;
     private String description;
