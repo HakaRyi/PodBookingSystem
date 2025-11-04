@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using PodBookingSystem.B.ServiceLayer.DTO.Request;
 using PodBookingSystem.C.RepositoryLayer.Models;
 using PodBookingSystem.C.RepositoryLayer.UnitOfWorks;
 using System;
@@ -140,6 +141,36 @@ namespace PodBookingSystem.B.ServiceLayer
                 signingCredentials: creds);
 
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+        public async Task<bool> UpdateProfileAsync(int accountId, UpdateProfileRequest dto)
+        {
+            try
+            {
+                var account = await _unitOfWork.AccountRepository.GetById(accountId);
+                if (account == null)
+                    throw new Exception($"Không tìm thấy tài khoản có ID = {accountId}");
+
+                // Chỉ cập nhật các trường thuộc profile
+                if (!string.IsNullOrEmpty(dto.Name))
+                    account.Name = dto.Name;
+
+                if (!string.IsNullOrEmpty(dto.Phone))
+                    account.Phone = dto.Phone;
+
+                if (!string.IsNullOrEmpty(dto.Email))
+                    account.Email = dto.Email;
+
+                if (!string.IsNullOrEmpty(dto.AvatarUrl))
+                    account.AvatarUrl = dto.AvatarUrl;
+
+                var result = await _unitOfWork.AccountRepository.UpdateAsync(account);
+                return result > 0;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Lỗi khi cập nhật profile cho account ID = {accountId}");
+                throw new Exception("Không thể cập nhật profile tài khoản.", ex);
+            }
         }
     }
 }

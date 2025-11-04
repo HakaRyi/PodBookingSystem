@@ -191,5 +191,34 @@ namespace PodBookingSystem.A.WebAPI.Controllers
         //        expiresIn = 7200
         //    });
         //}
-    }
+    
+    [HttpPut("update-profile")]
+        public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileRequest request)
+        {
+            try
+            {
+                var decodedToken = await FirebaseTokenHelper.VerifyFirebaseTokenAsync(Request);
+                var email = decodedToken.Claims.ContainsKey("email")
+                    ? decodedToken.Claims["email"].ToString()
+                    : null;
+
+                if (string.IsNullOrEmpty(email))
+                    return Unauthorized(new { message = "Không tìm thấy email trong token." });
+
+                var user = await _accountService.GetAccountByEmailAsync(email);
+                if (user == null)
+                    return NotFound(new { message = "Không tìm thấy tài khoản tương ứng trong hệ thống." });
+
+                var success = await _accountService.UpdateProfileAsync(user.AccId, request);
+                if (success)
+                    return Ok(new { message = "Cập nhật hồ sơ thành công." });
+
+                return BadRequest(new { message = "Không thể cập nhật hồ sơ." });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
+    } 
 }
