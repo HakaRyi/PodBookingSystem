@@ -26,6 +26,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<AccountRepository>();
 builder.Services.AddScoped<SlotRepository>();
 builder.Services.AddScoped<RoomSlotRepository>();
+builder.Services.AddScoped<FeedbackRepository>();
 
 //service
 builder.Services.AddScoped<AccountService>();
@@ -33,6 +34,7 @@ builder.Services.AddScoped<AccountService>();
 builder.Services.AddScoped<SlotService>();
 builder.Services.AddScoped<RoomSlotService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<FeedbackService>();
 
 //unit of work
 
