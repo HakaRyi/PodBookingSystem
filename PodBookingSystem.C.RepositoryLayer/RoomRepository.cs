@@ -20,13 +20,36 @@ namespace PodBookingSystem.C.RepositoryLayer
         {
             return await context.Rooms
                 .Include(r => r.Type)
+                .Where(r => r.Status == "AVAILABLE")
                 .OrderByDescending(r => r.RoomId)
+                .AsNoTracking()
+                .ToListAsync();
+        }
+        public async Task<List<Room>> Get3RoomsAsync()
+        {
+            return await context.Rooms
+                .Include(r => r.Type)
+                .Where(r => r.Status == "AVAILABLE")
+                .OrderByDescending(r => r.RoomId)
+                .Take(3)
+                .AsNoTracking()
+                .ToListAsync();
+        }
+        public async Task<List<Room>> GetNewestRoomAsync()
+        {
+            return await context.Rooms
+                .Include(r => r.Type)
+                .Where(r => r.Status == "AVAILABLE")
+                .OrderByDescending(r => r.RoomId)
+                .Take(1)
+                .AsNoTracking()
                 .ToListAsync();
         }
         public async Task<Room> GetRoomAsync(int id)
         {
             return await context.Rooms
                .Include(r => r.Type)
+               .AsNoTracking()
                .FirstOrDefaultAsync(r => r.RoomId == id);
         }
         public async Task<int> CretaeAsync(Room room)

@@ -27,7 +27,15 @@ namespace PodBookingSystem.C.RepositoryLayer
                 .Include(rs => rs.Booking)
                 .ToListAsync();
         }
-
+        public async Task<List<int>> GetBookedSlotIdsAsync(int roomId, DateOnly bookingDate)
+        {
+            return await _context.RoomSlots
+                .Where(rs => rs.RoomId == roomId
+                          && rs.BookingDate == bookingDate
+                          && rs.BookingId != null)
+                .Select(rs => rs.SlotId)
+                .ToListAsync();
+        }
         public async Task<RoomSlot> GetByIdAsync(int roomId, int slotId)
         {
             return await _context.RoomSlots

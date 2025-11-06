@@ -15,6 +15,15 @@ namespace PodBookingSystem.A.WebAPI.Controllers
         {
             _slotService = slotService;
         }
+        [HttpGet("available")]
+        public async Task<IActionResult> GetAvailableSlots([FromQuery] int roomId, [FromQuery] DateOnly bookingDate)
+        {
+            if (roomId <= 0 || bookingDate == default)
+                return BadRequest("thieu roomId or bookingDate");
+
+            var availableSlots = await _slotService.GetAvailableSlotsAsync(roomId, bookingDate);
+            return Ok(availableSlots);
+        }
 
         [HttpGet]
         public async Task<IActionResult> GetAll() => Ok(await _slotService.GetAllAsync());

@@ -24,6 +24,7 @@ namespace PodBookingSystem.C.RepositoryLayer
             .Include(b => b.Payment)
             .Include(b => b.Feedback)
             .OrderByDescending(b => b.BookingDate)
+            .AsNoTracking()
             .ToListAsync();
         public async Task<List<Booking>> GetBookingsByBOOKEDAsync() => await _context.Bookings
             .Include(b => b.BookingDetails)
@@ -34,6 +35,7 @@ namespace PodBookingSystem.C.RepositoryLayer
             .Include(b => b.Feedback)
             .Where(b => b.Status == "BOOKED")
             .OrderByDescending(b => b.BookingDate)
+            .AsNoTracking()
             .ToListAsync();
         public async Task<List<Booking>> GetBookingsByAVAILABLEAsync() => await _context.Bookings
             .Include(b => b.BookingDetails)
@@ -44,6 +46,7 @@ namespace PodBookingSystem.C.RepositoryLayer
             .Include(b => b.Feedback)
             .Where(b => b.Status == "AVAILABLE")
             .OrderByDescending(b => b.BookingDate)
+            .AsNoTracking()
             .ToListAsync();
         public async Task<List<Booking>> GetBookingsByDONEAsync() => await _context.Bookings
             .Include(b => b.BookingDetails)
@@ -54,6 +57,7 @@ namespace PodBookingSystem.C.RepositoryLayer
             .Include(b => b.Feedback)
             .Where(b => b.Status == "DONE")
             .OrderByDescending(b => b.BookingDate)
+            .AsNoTracking()
             .ToListAsync();
         public async Task<List<Booking>> GetBookingsByCHECKINAsync() => await _context.Bookings
             .Include(b => b.BookingDetails)
@@ -64,6 +68,7 @@ namespace PodBookingSystem.C.RepositoryLayer
             .Include(b => b.Feedback)
             .Where(b => b.Status == "CHECK-IN")
             .OrderByDescending(b => b.BookingDate)
+            .AsNoTracking()
             .ToListAsync();
         public async Task<List<Booking>> GetBookingsByCHECKOUTAsync() => await _context.Bookings
             .Include(b => b.BookingDetails)
@@ -74,6 +79,7 @@ namespace PodBookingSystem.C.RepositoryLayer
             .Include(b => b.Feedback)
             .Where(b => b.Status == "CHECK-OUT")
             .OrderByDescending(b => b.BookingDate)
+            .AsNoTracking()
             .ToListAsync();
 
         public async Task<Booking> GetByIdAsync(int bookingId) 
@@ -84,26 +90,37 @@ namespace PodBookingSystem.C.RepositoryLayer
             .Include(b => b.RoomSlots)
             .Include(b => b.Payment)
             .Include(b => b.Feedback)
+            .AsNoTracking()
             .FirstOrDefaultAsync(b => b.BookingId == bookingId);
-        public async Task<Booking> GetExistingPendingBooking(int userId)
+        public async Task<Booking> GetByIdForUpdateAsync(int bookingId)
             => await _context.Bookings
-            .Include(b => b.BookingDetails)
-            .Include(b => b.User)
-            .Include(b => b.RoomSlots)
-            .Include(b => b.Payment)
-            .Include(b => b.Feedback)
-            .FirstOrDefaultAsync(b => b.UserId == userId && b.Status == "PENDING");
-        public async Task<Booking?> GetBookingByDetailAsync(int detailId)
-        {
-            return await _context.Bookings
                 .Include(b => b.BookingDetails)
                 .Include(b => b.User)
                 .Include(b => b.RoomSlots)
                 .Include(b => b.Payment)
                 .Include(b => b.Feedback)
+                .FirstOrDefaultAsync(b => b.BookingId == bookingId);
+        public async Task<Booking> GetExistingPendingBooking(int userId)
+            => await _context.Bookings
+            .Include(b => b.BookingDetails).ThenInclude(d => d.Room)
+            .Include(b => b.User)
+            .Include(b => b.RoomSlots)
+            .Include(b => b.Payment)
+            .Include(b => b.Feedback)
+            .AsNoTracking()
+            .FirstOrDefaultAsync(b => b.UserId == userId && b.Status == "PENDING");
+        public async Task<Booking?> GetBookingByDetailAsync(int detailId)
+        {
+            return await _context.Bookings
+                .Include(b => b.BookingDetails).ThenInclude(d => d.Room)
+                .Include(b => b.User)
+                .Include(b => b.RoomSlots)
+                .Include(b => b.Payment)
+                .Include(b => b.Feedback)
+                .AsNoTracking()
                 .FirstOrDefaultAsync(b => b.BookingDetails.Any(d => d.BookingDetailId == detailId));
         }
-        public async Task<int> CretaeAsync(Booking booking)
+        public async Task<int> CreateAsync(Booking booking)
         {
             _context.Bookings.Add(booking);
             return await _context.SaveChangesAsync();

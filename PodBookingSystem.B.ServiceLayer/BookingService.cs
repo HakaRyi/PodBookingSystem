@@ -73,7 +73,7 @@ namespace PodBookingSystem.B.ServiceLayer
                     Status = "PENDING"
 
                 };
-                await _unitOfWork.BookingRepository.CretaeAsync(newBooking);
+                await _unitOfWork.BookingRepository.CreateAsync(newBooking);
                 decimal total = 0;
                 foreach (var detail in booking.BookingDetails)
                 {
@@ -103,7 +103,7 @@ namespace PodBookingSystem.B.ServiceLayer
                         Timestamp = DateTime.Now
                     };
                     total += price;
-                    await _unitOfWork.BookingDetailRepository.CretaeAsync(newDetail);
+                    await _unitOfWork.BookingDetailRepository.CreateAsync(newDetail);
 
                 }
                 newBooking.Total = total;
@@ -135,8 +135,8 @@ namespace PodBookingSystem.B.ServiceLayer
                     Status = "PENDING"
 
                 };
-                await _unitOfWork.BookingRepository.CretaeAsync(newBooking);
-                return 1;
+                await _unitOfWork.BookingRepository.CreateAsync(newBooking);
+                return newBooking.BookingId;
 
             }
             catch (Exception ex)

@@ -45,8 +45,8 @@ public partial class PodBookingSystemContext : DbContext
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.UseSqlServer(GetConnectionString("DefaultConnection"))
-        .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+        => optionsBuilder.UseSqlServer(GetConnectionString("DefaultConnection"));
+        //.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -221,7 +221,8 @@ public partial class PodBookingSystemContext : DbContext
 
         modelBuilder.Entity<RoomSlot>(entity =>
         {
-            entity.HasKey(e => new { e.SlotId, e.RoomId }).HasName("PK__Room_Slo__3B7B4847D45027FD");
+            entity.HasKey(e => new { e.RoomId, e.SlotId, e.BookingDate })
+          .HasName("PK_Room_Slot");
 
             entity.ToTable("Room_Slot");
 
