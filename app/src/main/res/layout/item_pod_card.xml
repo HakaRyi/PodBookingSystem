@@ -71,7 +71,7 @@
             android:id="@+id/btnBook"
             android:layout_width="100dp"
             android:layout_height="40dp"
-            android:text="Book"
+            android:text="Chi tiết"
             android:textSize="12sp"
             android:textStyle="bold"
             app:cornerRadius="20dp"

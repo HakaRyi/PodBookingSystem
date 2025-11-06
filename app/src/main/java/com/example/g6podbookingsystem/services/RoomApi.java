@@ -14,9 +14,13 @@ import retrofit2.http.Path;
 
 public interface RoomApi {
 
-
-    //Mẹ này dùng để đăng nhập
     @GET("api/Room")
     Call<List<Room>> getAllRooms();
+    @GET("api/Room/3latest")
+    Call<List<Room>> get3Rooms();
+    @GET("api/Room/newest")
+    Call<List<Room>> getNewestRooms();
+    @GET("api/Room/{id}")
+    Call<Room> getRoomById(@Path("id") int id);
 
 }
