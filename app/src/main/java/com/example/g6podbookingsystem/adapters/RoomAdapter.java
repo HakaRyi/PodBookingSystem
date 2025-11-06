@@ -22,6 +22,7 @@ public class RoomAdapter extends RecyclerView.Adapter<RoomAdapter.RoomViewHolder
 
     private List<Room> roomList;
     private Context context;
+    private OnItemClickListener listener;
 
     public RoomAdapter(Context context, List<Room> roomList) {
         this.context = context;
@@ -34,7 +35,12 @@ public class RoomAdapter extends RecyclerView.Adapter<RoomAdapter.RoomViewHolder
         View view = LayoutInflater.from(context).inflate(R.layout.item_pod_card, parent, false);
         return new RoomViewHolder(view);
     }
-
+    public interface OnItemClickListener {
+        void onItemClick(Room room);
+    }
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        this.listener = listener;
+    }
     @Override
     public void onBindViewHolder(@NonNull RoomViewHolder holder, int position) {
         Room room = roomList.get(position);
@@ -60,6 +66,11 @@ public class RoomAdapter extends RecyclerView.Adapter<RoomAdapter.RoomViewHolder
             Intent intent = new Intent(context, RoomDetailActivity.class);
             intent.putExtra("room", room);
             context.startActivity(intent);
+        });
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onItemClick(roomList.get(position));
+            }
         });
     }
 

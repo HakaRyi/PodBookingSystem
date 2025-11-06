@@ -17,16 +17,25 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.G6PodBookingSystem"
         android:usesCleartextTraffic="true">
-<!--        <activity-->
-<!--            android:name=".activities.AdminBookingHistoryActivity"-->
-<!--            android:exported="false" />-->
+        <activity
+            android:name=".activities.BookingSummaryActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.UserBookingDetailActivity"
+            android:exported="false" /> <!-- <activity -->
+        <!-- android:name=".activities.AdminBookingHistoryActivity" -->
+        <!-- android:exported="false" /> -->
+        <activity
+            android:name=".activities.FindRoomActivity"
+            android:exported="false"
+            android:parentActivityName=".activities.DashboardActivity" />
         <activity
             android:name=".activities.BookingDetailActivity"
             android:exported="false" />
         <activity
             android:name=".activities.RoomDetailActivity"
             android:exported="false"
-            android:parentActivityName=".activities.DashboardActivity"/>
+            android:parentActivityName=".activities.DashboardActivity" />
         <activity
             android:name=".activities.DashboardActivity"
             android:exported="false" />
