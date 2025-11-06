@@ -73,7 +73,13 @@ namespace PodBookingSystem.B.ServiceLayer
                         rs.BookingId != null);
 
                     if (exists)
-                        throw new Exception($"Slot {s.SlotId} ngày {s.BookingDate} đã được đặt!");
+                    {
+                        string errorMsg = dto.BookingType == "DAY"
+                            ? $"Phòng đã được đặt một phần vào ngày {s.BookingDate}. Không thể đặt cả ngày!"
+                            : $"Slot {s.SlotId} ngày {s.BookingDate} đã được đặt!";
+
+                        throw new Exception(errorMsg);
+                    }
                 }
                 decimal totalPrice = dto.BookingType == "DAY"
                     ? (room.PriceDay ?? 0)
