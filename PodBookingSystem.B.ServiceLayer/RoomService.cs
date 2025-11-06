@@ -32,6 +32,28 @@ namespace PodBookingSystem.B.ServiceLayer
             }
             return new List<Room>();
         }
+        public async Task<List<Room>> Get3Rooms()
+        {
+            try
+            {
+                return await _unitOfWork.RoomRepository.Get3RoomsAsync();
+            }
+            catch (Exception ex)
+            {
+            }
+            return new List<Room>();
+        }
+        public async Task<List<Room>> GetNewestRoom()
+        {
+            try
+            {
+                return await _unitOfWork.RoomRepository.GetNewestRoomAsync();
+            }
+            catch (Exception ex)
+            {
+            }
+            return new List<Room>();
+        }
         public async Task<Room> GetRoomById(int id)
         {
             try

@@ -23,6 +23,16 @@ namespace PodBookingSystem.A.WebAPI.Controllers
         {
             return await _service.GetRooms();
         }
+        [HttpGet("3latest")]
+        public async Task<List<Room>> Get3()
+        {
+            return await _service.Get3Rooms();
+        }
+        [HttpGet("newest")]
+        public async Task<List<Room>> GetNewest()
+        {
+            return await _service.GetNewestRoom();
+        }
 
         // GET api/<RoomController>/5
         [HttpGet("{id}")]

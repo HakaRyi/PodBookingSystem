@@ -60,7 +60,7 @@ namespace PodBookingSystem.B.ServiceLayer
                 var room = await _unitOfWork.RoomRepository.GetRoomAsync(roomId)
                     ?? throw new Exception("Phòng không tồn tại");
 
-                var booking = await _unitOfWork.BookingRepository.GetByIdAsync(bookingId)
+                var booking = await _unitOfWork.BookingRepository.GetByIdForUpdateAsync(bookingId)
                     ?? throw new Exception("Booking không tồn tại");
 
                 // check slot trung
@@ -93,7 +93,7 @@ namespace PodBookingSystem.B.ServiceLayer
                 booking.Total += totalPrice;
 
                 // 5. LƯU DETAIL TRƯỚC ĐỂ CÓ ID
-                await _unitOfWork.BookingDetailRepository.CretaeAsync(newDetail);
+                await _unitOfWork.BookingDetailRepository.CreateAsync(newDetail);
                 foreach (var s in dto.Slots)
                 {
                     var roomSlot = new RoomSlot
@@ -190,15 +190,15 @@ namespace PodBookingSystem.B.ServiceLayer
         {
             try
             {
-                var detail = await _unitOfWork.BookingDetailRepository.GetByIdAsync(detailId)
+                var detail = await _unitOfWork.BookingDetailRepository.GetByIdAsyncForUpdate(detailId)
                     ?? throw new Exception("Không tìm thấy");
 
-                var booking = await _unitOfWork.BookingRepository.GetByIdAsync(detail.BookingId)
+                var booking = await _unitOfWork.BookingRepository.GetByIdForUpdateAsync(detail.BookingId)
                     ?? throw new Exception("Booking không tồn tại");
                 booking.Total -= detail.TotalPrice;
                 await _unitOfWork.RoomSlotRepository.DeleteByBookingDetailId(detailId);
 
-                var deleted = await _unitOfWork.BookingDetailRepository.DeleteAsync(detailId);
+                var deleted = await _unitOfWork.BookingDetailRepository.DeleteAsync(detail);
                 if (deleted)
                 {
                     await _unitOfWork.BookingRepository.UpdateAsync(booking);

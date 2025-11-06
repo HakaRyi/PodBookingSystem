@@ -38,15 +38,47 @@ namespace PodBookingSystem.A.WebAPI.Controllers
             return await _bookingService.GetBookingAsync(id);
         }
         [HttpGet("pendingBooking")]
-        public async Task<Booking> GetPendingByUserId()
+        public async Task<IActionResult> GetPendingByUserId()
         {
             var decodedToken = await FirebaseTokenHelper.VerifyFirebaseTokenAsync(Request);
             var email = decodedToken.Claims.ContainsKey("email")
             ? decodedToken.Claims["email"].ToString()
             : null;
             var user = await _accountService.GetAccountByEmailAsync(email);
-            return await _bookingService.GetBookingAsync(user.AccId);
+            var booking = await _bookingService.GetBookingPendingAsync(user.AccId);
+            if(booking == null)
+            {
+                return Ok(new { message = "Không có booking nào đang chờ" });
+            }
+        
+
+            return Ok(new
+            {
+                message = "Có booking đang chờ xử lý",
+                bookingId = booking.BookingId
+            });
         }
+        [HttpGet("pendingBooking2")]
+        public async Task<IActionResult> GetPendingByUserId2()
+        {
+            var decodedToken = await FirebaseTokenHelper.VerifyFirebaseTokenAsync(Request);
+            var email = decodedToken.Claims.ContainsKey("email")
+            ? decodedToken.Claims["email"].ToString()
+            : null;
+            var user = await _accountService.GetAccountByEmailAsync(email);
+            var booking = await _bookingService.GetBookingPendingAsync(user.AccId);
+            if (booking == null)
+            {
+                return Ok(new { message = "Không có booking nào đang chờ" });
+            }
+
+
+            return Ok(new
+            {
+                booking
+            });
+        }
+
 
         // POST api/<BookingController>
         [HttpPost]
@@ -61,14 +93,25 @@ namespace PodBookingSystem.A.WebAPI.Controllers
             return await _bookingService.CreateAsync(booking, user.AccId);
         }
         [HttpPost("createBooking")]
-        public async Task<int> Post2()
+        [Authorize]
+        public async Task<IActionResult> Post2() 
         {
             var decodedToken = await FirebaseTokenHelper.VerifyFirebaseTokenAsync(Request);
-            var email = decodedToken.Claims.ContainsKey("email")
-            ? decodedToken.Claims["email"].ToString()
-            : null;
+            if (decodedToken == null) return Unauthorized("Token invalid");
+
+            var email = decodedToken.Claims["email"]?.ToString();
             var user = await _accountService.GetAccountByEmailAsync(email);
-            return await _bookingService.CreateAsync2(1);
+            if (user == null) return NotFound("User not found");
+
+            try
+            {
+                var bookingId = await _bookingService.CreateAsync2(user.AccId);
+                return Ok(new { bookingId });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(ex.Message);
+            }
         }
 
         // PUT api/<BookingController>/5

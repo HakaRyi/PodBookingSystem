@@ -13,10 +13,12 @@ namespace PodBookingSystem.B.ServiceLayer
     public class SlotService
     {
         private readonly SlotRepository _slotRepository;
+        private readonly RoomSlotRepository _roomSlotRepository;
 
-        public SlotService(SlotRepository slotRepository)
+        public SlotService(SlotRepository slotRepository, RoomSlotRepository roomSlotRepository)
         {
             _slotRepository = slotRepository;
+            _roomSlotRepository = roomSlotRepository;
         }
 
         public async Task<List<SlotResponse>> GetAllAsync()
@@ -28,7 +30,16 @@ namespace PodBookingSystem.B.ServiceLayer
                 Description = s.Description
             }).ToList();
         }
+        public async Task<List<Slot>> GetAvailableSlotsAsync(int roomId, DateOnly bookingDate)
+        {
+            var allSlots = await _slotRepository.GetAllAsync();
+            var bookedSlotIds = await _roomSlotRepository.GetBookedSlotIdsAsync(roomId, bookingDate);
 
+            return allSlots
+                .Where(s => !bookedSlotIds.Contains(s.SlotId))
+                .OrderBy(s => s.SlotId)
+                .ToList();
+        }
         public async Task<SlotResponse> GetByIdAsync(int id)
         {
             var slot = await _slotRepository.GetByIdAsync(id);

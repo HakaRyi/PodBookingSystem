@@ -24,8 +24,13 @@ namespace PodBookingSystem.C.RepositoryLayer
         public async Task<BookingDetail> GetByIdAsync(int bookingDetailId)
             => await _context.BookingDetails
             .Include(b => b.Room).ThenInclude(b=> b.Type)
+            .AsNoTracking()
             .FirstOrDefaultAsync(b => b.BookingDetailId == bookingDetailId);
-        public async Task<int> CretaeAsync(BookingDetail bookingDetail)
+        public async Task<BookingDetail> GetByIdAsyncForUpdate(int bookingDetailId)
+            => await _context.BookingDetails
+            .Include(b => b.Room).ThenInclude(b => b.Type)
+            .FirstOrDefaultAsync(b => b.BookingDetailId == bookingDetailId);
+        public async Task<int> CreateAsync(BookingDetail bookingDetail)
         {
             _context.BookingDetails.Add(bookingDetail);
             return await _context.SaveChangesAsync();
@@ -35,16 +40,13 @@ namespace PodBookingSystem.C.RepositoryLayer
             _context.BookingDetails.Update(bookingDetail);
             return await _context.SaveChangesAsync();
         }
-        public async Task<bool> DeleteAsync(int id)
+        public async Task<bool> DeleteAsync(BookingDetail bookingDetail)
         {
-            var bookingDetail = await GetByIdAsync(id);
-            if (bookingDetail != null)
-            {
+            
                 _context.BookingDetails.Remove(bookingDetail);
                 await _context.SaveChangesAsync();
                 return true;
-            }
-            return false;
+          
 
         }
     }
