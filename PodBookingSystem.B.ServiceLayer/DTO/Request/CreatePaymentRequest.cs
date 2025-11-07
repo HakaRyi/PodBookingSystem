@@ -11,5 +11,6 @@ namespace PodBookingSystem.B.ServiceLayer.DTO.Request
         public short OrderId { get; set; }
         public decimal Amount { get; set; }
         public string ReturnUrl { get; set; }
+        public string CancelUrl { get; set; }
     }
 }

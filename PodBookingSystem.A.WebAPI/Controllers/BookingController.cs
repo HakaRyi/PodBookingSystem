@@ -188,14 +188,15 @@ namespace PodBookingSystem.A.WebAPI.Controllers
                 var booking = await _bookingService.GetBookingAsync(bookingId);
                 if (booking == null || booking.Status != "PENDING")
                     return BadRequest("Booking không hợp lệ hoặc đã được xử lý.");
-                var returnUrl = "http://localhost:3000/profile/bkh";
-                booking.Total = booking.Total;
+                var returnUrl = "g6podbookingsystem://payment-success?status=success";
+                var cancelUrl = "g6podbookingsystem://payment-cancel?status=cancel";
+                booking.Total = booking.Total;  
 
                 var amount = booking.Total;
                 if (amount < 1000) amount = 3000;
 
 
-                var link = await _payOsPaymentService.CreatePaymentUrlAsync(bookingId, amount, returnUrl);
+                var link = await _payOsPaymentService.CreatePaymentUrlAsync(bookingId, amount, returnUrl, cancelUrl);
                 return Ok(new { checkoutUrl = link });
             }
             catch (Exception ex)
