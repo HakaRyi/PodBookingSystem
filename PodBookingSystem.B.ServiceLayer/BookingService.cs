@@ -1,13 +1,15 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using PodBookingSystem.B.ServiceLayer.DTO.Response;
+using PodBookingSystem.C.RepositoryLayer;
+using PodBookingSystem.C.RepositoryLayer.Models;
+using PodBookingSystem.C.RepositoryLayer.UnitOfWorks;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using PodBookingSystem.C.RepositoryLayer.Models;
-using PodBookingSystem.C.RepositoryLayer.UnitOfWorks;
 
 namespace PodBookingSystem.B.ServiceLayer
 {
@@ -258,6 +260,36 @@ namespace PodBookingSystem.B.ServiceLayer
             {
             }
             return false;
+        }
+        public async Task<List<BookingHistoryDto>> GetUserBookingHistoryAsync(int userId)
+        {
+            var bookings = await _unitOfWork.BookingRepository.GetBookingsAsync();
+
+            var userBookings = bookings
+                .Where(b => b.UserId == userId)
+                .OrderByDescending(b => b.BookingDate)
+                .Select(b => new BookingHistoryDto
+                {
+                    BookingId = b.BookingId,
+                    BookingDate = b.BookingDate,
+                    Total = b.Total,
+                    Status = b.Status,
+                    CancelReason = b.CancelReason,
+                    CancelDate = b.CancelDate,
+                    FeedbackComment = b.Feedback?.Description,
+                    Details = b.BookingDetails.Select(d => new BookingDetailDto
+                    {
+                        RoomId = d.RoomId,
+                        RoomName = d.Room?.Name ?? "",
+                        RoomType = d.Room?.Type?.Name ?? "",
+                        StartTime = d.StartTime,
+                        EndTime = d.EndTime,
+                        TotalPrice = d.TotalPrice
+                    }).ToList()
+                })
+                .ToList();
+
+            return userBookings;
         }
 
     }

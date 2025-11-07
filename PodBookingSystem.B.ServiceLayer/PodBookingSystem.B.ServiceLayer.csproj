@@ -17,8 +17,4 @@
     <ProjectReference Include="..\PodBookingSystem.C.RepositoryLayer\PodBookingSystem.C.RepositoryLayer.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="DTO\Response\" />
-  </ItemGroup>
-
 </Project>

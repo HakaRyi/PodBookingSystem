@@ -16,7 +16,7 @@ namespace PodBookingSystem.A.WebAPI.Controllers
         private readonly PayOsPaymentService _payOsPaymentService;
         private readonly AccountService _accountService;
         private readonly IEmailService _emailService;
-        public BookingController(BookingService bookingService, PayOsPaymentService payOsPaymentService, AccountService accountService, IEmailService emailService )
+        public BookingController(BookingService bookingService, PayOsPaymentService payOsPaymentService, AccountService accountService, IEmailService emailService)
         {
             _bookingService = bookingService;
             _payOsPaymentService = payOsPaymentService;
@@ -46,11 +46,11 @@ namespace PodBookingSystem.A.WebAPI.Controllers
             : null;
             var user = await _accountService.GetAccountByEmailAsync(email);
             var booking = await _bookingService.GetBookingPendingAsync(user.AccId);
-            if(booking == null)
+            if (booking == null)
             {
                 return Ok(new { message = "Không có booking nào đang chờ" });
             }
-        
+
 
             return Ok(new
             {
@@ -94,7 +94,7 @@ namespace PodBookingSystem.A.WebAPI.Controllers
         }
         [HttpPost("createBooking")]
         [Authorize]
-        public async Task<IActionResult> Post2() 
+        public async Task<IActionResult> Post2()
         {
             var decodedToken = await FirebaseTokenHelper.VerifyFirebaseTokenAsync(Request);
             if (decodedToken == null) return Unauthorized("Token invalid");
@@ -169,7 +169,7 @@ namespace PodBookingSystem.A.WebAPI.Controllers
                     Trân trọng,
                     G6 Pod Booking System."
                                     );
-                                }
+            }
 
             return Ok(1);
 
@@ -190,7 +190,7 @@ namespace PodBookingSystem.A.WebAPI.Controllers
                     return BadRequest("Booking không hợp lệ hoặc đã được xử lý.");
                 var returnUrl = "g6podbookingsystem://payment-success?status=success";
                 var cancelUrl = "g6podbookingsystem://payment-cancel?status=cancel";
-                booking.Total = booking.Total;  
+                booking.Total = booking.Total;
 
                 var amount = booking.Total;
                 if (amount < 1000) amount = 3000;
@@ -203,6 +203,16 @@ namespace PodBookingSystem.A.WebAPI.Controllers
             {
                 return BadRequest(ex.Message);
             }
+        }
+        [HttpGet("user/{userId}/history")]
+        public async Task<IActionResult> GetUserBookingHistory(int userId)
+        {
+            var history = await _bookingService.GetUserBookingHistoryAsync(userId);
+
+            if (!history.Any())
+                return NotFound(new { message = "Không có lịch sử đặt chỗ nào cho user này." });
+
+            return Ok(history);
         }
     }
 }
