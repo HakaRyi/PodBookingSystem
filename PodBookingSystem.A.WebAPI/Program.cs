@@ -1,14 +1,15 @@
+using System.Text;
+using System.Text.Json;
 using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using PodBookingSystem.B.ServiceLayer;
+using PodBookingSystem.B.ServiceLayer.DTO.Request;
 using PodBookingSystem.C.RepositoryLayer;
 using PodBookingSystem.C.RepositoryLayer.DBContext;
 using PodBookingSystem.C.RepositoryLayer.UnitOfWorks;
-using System.Text;
-using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -47,7 +48,9 @@ builder.Services.AddScoped<RoomRepository>();
 builder.Services.AddScoped<PaymentService>();
 builder.Services.AddScoped<PaymentRepository>();
 builder.Services.AddScoped<PayOsPaymentService>();
-
+builder.Services.Configure<PayOsSettings>(
+    builder.Configuration.GetSection("PayOS")
+    );
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 //DB config

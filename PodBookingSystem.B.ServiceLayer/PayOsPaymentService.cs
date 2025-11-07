@@ -9,9 +9,10 @@ using Microsoft.Extensions.Options;
 using Net.payOS;
 using Net.payOS.Errors;
 using Net.payOS.Types;
+using PodBookingSystem.B.ServiceLayer.DTO.Request;
 using PodBookingSystem.C.RepositoryLayer.Models;
 using PodBookingSystem.C.RepositoryLayer.UnitOfWorks;
-using Service.Config;
+
 
 namespace PodBookingSystem.B.ServiceLayer
 {
@@ -30,13 +31,13 @@ namespace PodBookingSystem.B.ServiceLayer
             _logger = logger;
             _configuration = configuration;
         }
-        public async Task<string> CreatePaymentUrlAsync(int bookingId, decimal amount, string returnUrl)
+        public async Task<string> CreatePaymentUrlAsync(int bookingId, decimal amount, string returnUrl, string cancelUrl)
         {
             var booking = await _unitOfWork.BookingRepository.GetByIdAsync(bookingId);
             if (booking == null)
                 throw new Exception($"booking not found with ID = {booking}");
 
-            long orderCode = long.Parse($"{booking}{DateTime.UtcNow:MMddHHmmss}");
+            long orderCode = long.Parse($"{bookingId}{DateTime.UtcNow:MMddHHmmss}");
 
             //Danh sách sản phẩm
             var itemList = booking.BookingDetails.Select(od => new ItemData(
@@ -50,8 +51,8 @@ namespace PodBookingSystem.B.ServiceLayer
                 amount: (int)amount,
                 description: $"POD #{bookingId}:paid",
                 items: itemList,
-                cancelUrl: "http://localhost:3000/restaurants/",
-                returnUrl: $"http://localhost:3000/profile/bkh"
+                cancelUrl: cancelUrl,
+                returnUrl: returnUrl
             );
 
             try
@@ -66,13 +67,13 @@ namespace PodBookingSystem.B.ServiceLayer
                 throw new ApplicationException("Lỗi khi tạo link thanh toán PayOS: " + ex.Message);
             }
         }
-        public async Task<WebhookData> VerifyWebhook(WebhookType webhookBody, int userId)
+        public async Task<WebhookData> VerifyWebhook(WebhookType webhookBody)
         {
             Console.WriteLine("Webhook received, verifying...");
 
             var data = _payOs.verifyPaymentWebhookData(webhookBody);
             if (data == null)
-            {
+            {   
                 Console.WriteLine("verifyPaymentWebhookData returned null");
                 return null;
             }
@@ -92,20 +93,18 @@ namespace PodBookingSystem.B.ServiceLayer
 
             Console.WriteLine($"Extracted orderId = {bookingId} from orderCode = {data.orderCode}");
 
-            
-            
-
-            var bookingE = await _unitOfWork.BookingRepository.GetByIdAsync(bookingId);
-            if (bookingE == null)
+            var booking = await _unitOfWork.BookingRepository.GetByIdForUpdateAsync(bookingId);
+            if (booking == null || booking.Status != "PENDING")
             {
                 Console.WriteLine($"booking not found: {bookingId}");
                 return null;
             }
-            bookingE.Status = "BOOKED";
+            booking.Status = "BOOKED";
+            await _unitOfWork.BookingRepository.UpdateAsync(booking);
             var payment = new Payment
             {
-                BookingId = bookingE.BookingId,
-                TotalAmount = bookingE.Total,
+                BookingId = booking.BookingId,
+                TotalAmount = booking.Total,
  
             };
             await _unitOfWork.PaymentRepository.CreateAsync(payment);

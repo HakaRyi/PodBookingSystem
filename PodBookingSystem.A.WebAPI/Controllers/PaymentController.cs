@@ -56,18 +56,18 @@ namespace PodBookingSystem.A.WebAPI.Controllers
         [HttpPost("create")]
         public async Task<IActionResult> CreatePayment([FromBody] CreatePaymentRequest request)
         {
-            var url = await _payOsService.CreatePaymentUrlAsync(request.OrderId, request.Amount, request.ReturnUrl);
+            var url = await _payOsService.CreatePaymentUrlAsync(request.OrderId, request.Amount, request.ReturnUrl, request.CancelUrl);
             return Ok(new { checkoutUrl = url });
         }
 
-        [HttpPost("webhook/{userId}")]
-        public async Task<IActionResult> Webhook([FromBody] WebhookType webhookBody, [FromRoute] int userId)
+        [HttpPost("webhook")]
+        public async Task<IActionResult> Webhook([FromBody] WebhookType webhookBody)
         {
             try
             {
                 Console.WriteLine("Webhook received raw: " + System.Text.Json.JsonSerializer.Serialize(webhookBody));
 
-                var data = await _payOsService.VerifyWebhook(webhookBody,userId);
+                var data = await _payOsService.VerifyWebhook(webhookBody);
 
                 if (data == null)
                 {
