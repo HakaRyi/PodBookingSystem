@@ -52,6 +52,30 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".activities.PaymentResultActivity"
+            android:exported="true">
+
+            <!-- payment-success -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="g6podbookingsystem"
+                    android:host="payment-success" />
+            </intent-filter>
+
+            <!-- payment-cancel -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="g6podbookingsystem"
+                    android:host="payment-cancel" />
+            </intent-filter>
+        </activity>
+        <activity
             android:name=".activities.RegisterActivity"
             android:exported="false" />
         <activity

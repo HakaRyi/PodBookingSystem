@@ -20,15 +20,19 @@ public class DashboardActivity extends AppCompatActivity {
         BottomNavigationView bottomNav = findViewById(R.id.bottom_navigation);
         bottomNav.setOnItemSelectedListener(navListener);
         // Kiểm tra Intent có yêu cầu mở fragment nào không
-        if (getIntent().hasExtra("open_fragment")) {
-            String fragment = getIntent().getStringExtra("open_fragment");
-            if ("home".equals(fragment)) {
+        if (savedInstanceState == null) {
+            String openFragment = getIntent().getStringExtra("open_fragment");
+
+            if ("bookings".equals(openFragment)) {
+                bottomNav.setSelectedItemId(R.id.nav_bookings);
+            } else if ("home".equals(openFragment)) {
                 bottomNav.setSelectedItemId(R.id.nav_home);
+            } else {
+                // Mặc định
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container, new HomeUserFragment())
+                        .commit();
             }
-        } else if (savedInstanceState == null) {// Mở trang chủ đầu tiên
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, new HomeUserFragment())
-                    .commit();
         }
 
 

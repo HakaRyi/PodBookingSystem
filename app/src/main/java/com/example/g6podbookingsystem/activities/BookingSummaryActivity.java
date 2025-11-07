@@ -1,6 +1,7 @@
 package com.example.g6podbookingsystem.activities;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.Button;
@@ -72,8 +73,49 @@ public class BookingSummaryActivity extends AppCompatActivity {
             startActivity(new Intent(this, FindRoomActivity.class));
         });
         btnManagePayments.setOnClickListener(v -> {
-            Toast.makeText(this, "Chuyển đến thanh toán...", Toast.LENGTH_SHORT).show();
-            //Chuyển đến Payment Activity
+            if (adapter == null || adapter.getItemCount() == 0) {
+                Toast.makeText(this, "Chưa có phòng để thanh toán!", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // LẤY BOOKING ID TỪ API PENDING
+            Call<BookingApi.PendingBookingResponse> call = bookingApi.getPendingBookingFull();
+            call.enqueue(new Callback<BookingApi.PendingBookingResponse>() {
+                @Override
+                public void onResponse(Call<BookingApi.PendingBookingResponse> call, Response<BookingApi.PendingBookingResponse> response) {
+                    if (response.isSuccessful() && response.body() != null && response.body().getBooking() != null) {
+                        int bookingId = response.body().getBooking().getBookingId();
+                        createPayment(bookingId);
+                    } else {
+                        Toast.makeText(BookingSummaryActivity.this, "Không có đơn chờ thanh toán!", Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<BookingApi.PendingBookingResponse> call, Throwable t) {
+                    Toast.makeText(BookingSummaryActivity.this, "Lỗi mạng!", Toast.LENGTH_SHORT).show();
+                }
+            });
+        });
+    }
+    private void createPayment(int bookingId) {
+        Call<BookingApi.PayOsResponse> call = bookingApi.createPayment(bookingId);
+        call.enqueue(new Callback<BookingApi.PayOsResponse>() {
+            @Override
+            public void onResponse(Call<BookingApi.PayOsResponse> call, Response<BookingApi.PayOsResponse> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().checkoutUrl != null) {
+                    String url = response.body().checkoutUrl;
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                    startActivity(intent);
+                } else {
+                   // Toast.makeText(BookingSummaryActivity.this, "Tạo link thanh toán thất bại!", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<BookingApi.PayOsResponse> call, Throwable t) {
+                Toast.makeText(BookingSummaryActivity.this, "Lỗi mạng: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
         });
     }
     @Override
@@ -130,7 +172,7 @@ public class BookingSummaryActivity extends AppCompatActivity {
                         }
 
                         // HIỆN THÔNG BÁO
-                        Toast.makeText(BookingSummaryActivity.this, res.getMessage(), Toast.LENGTH_LONG).show();
+//                        Toast.makeText(BookingSummaryActivity.this, res.getMessage(), Toast.LENGTH_LONG).show();
                     }
                 } else {
                     tvStatus.setText("Trạng thái: Lỗi kết nối");
@@ -207,6 +249,11 @@ public class BookingSummaryActivity extends AppCompatActivity {
                 Toast.makeText(BookingSummaryActivity.this, "Lỗi mạng: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadBookingFromApi(); // TẢI LẠI SAU KHI THANH TOÁN
     }
     private String formatPrice(double price) {
         NumberFormat f = NumberFormat.getInstance(new Locale("vi", "VN"));
