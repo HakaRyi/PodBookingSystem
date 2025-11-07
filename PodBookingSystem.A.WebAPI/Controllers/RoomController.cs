@@ -36,9 +36,16 @@ namespace PodBookingSystem.A.WebAPI.Controllers
 
         // GET api/<RoomController>/5
         [HttpGet("{id}")]
-        public async Task<Room> Get(int id)
+        public async Task<ActionResult<Room>> Get(int id)
         {
-            return await _service.GetRoomById(id);
+            var room = await _service.GetRoomById(id);
+
+            if (room == null)
+            {
+                return NotFound(); // Trả về 404 Not Found
+            }
+
+            return Ok(room); // Trả về 200 OK + data
         }
 
         // POST api/<RoomController>
@@ -57,9 +64,16 @@ namespace PodBookingSystem.A.WebAPI.Controllers
 
         // DELETE api/<RoomController>/5
         [HttpDelete("{id}")]
-        public async Task<bool> Delete([FromRoute] int id)
+        public async Task<IActionResult> Delete([FromRoute] int id)
         {
-            return await _service.Delete(id);
+            var result = await _service.DeleteAsync(id);
+
+            if (!result)
+            {
+                return NotFound(); // Không tìm thấy để xóa
+            }
+
+            return NoContent(); // Trả về 204 No Content (chuẩn cho DELETE)
         }
     }
 }

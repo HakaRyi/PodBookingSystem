@@ -132,15 +132,50 @@ namespace PodBookingSystem.C.RepositoryLayer
         }
         public async Task<bool> DeleteAsync(int id)
         {
-            var booking = await GetByIdAsync(id);
-            if(booking != null)
+           
+            try
             {
-                _context.Bookings.Remove(booking);
-                await _context.SaveChangesAsync();
-                return true;
-            }
-            return false;
+               
+                var booking = await _context.Bookings
+                    .Include(b => b.BookingDetails) 
+                    .Include(b => b.RoomSlots)      
+                    .Include(b => b.Payment)        
+                    .Include(b => b.Feedback)       
+                    .FirstOrDefaultAsync(b => b.BookingId == id);
 
+                if (booking != null)
+                {
+                    
+                    _context.BookingDetails.RemoveRange(booking.BookingDetails);
+                    
+                    _context.RoomSlots.RemoveRange(booking.RoomSlots);
+
+                  
+                    if (booking.Payment != null)
+                    {
+                        _context.Payments.Remove(booking.Payment);
+                    }
+                    if (booking.Feedback != null)
+                    {
+                        _context.Feedbacks.Remove(booking.Feedback);
+                    }
+
+                    
+                    _context.Bookings.Remove(booking);
+
+                    
+                    await _context.SaveChangesAsync();
+                    return true;
+                }
+
+                
+                return false;
+            }
+            catch (Exception ex)
+            {
+                
+                return false;
+            }
         }
     }
 }

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using PodBookingSystem.C.RepositoryLayer.DBContext;
 using PodBookingSystem.C.RepositoryLayer.Models;
 using PodBookingSystem.C.RepositoryLayer.UnitOfWorks;
 
@@ -15,11 +16,13 @@ namespace PodBookingSystem.B.ServiceLayer
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<AccountService> _logger;
         private readonly IConfiguration _configuration;
-        public RoomService(IUnitOfWork unitOfWork, ILogger<AccountService> logger, IConfiguration configuration)
+        private readonly PodBookingSystemContext _context;
+        public RoomService(IUnitOfWork unitOfWork, ILogger<AccountService> logger, IConfiguration configuration, PodBookingSystemContext context)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
             _configuration = configuration;
+            _context = context;
         }
         public async Task<List<Room>> GetRooms()
         {
@@ -60,56 +63,63 @@ namespace PodBookingSystem.B.ServiceLayer
             {
                 return await _unitOfWork.RoomRepository.GetRoomAsync(id);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
-
+                _logger.LogError(e, "Lỗi khi lấy phòng theo Id: {RoomId}", id);
+                return null; 
             }
-            return new Room();
+            
         }
-        public async Task<int> Create(Room room)
+        public async Task<int> Create(Room room) 
         {
             try
             {
-                room = new Room()
-                {
-                    Status = "AVAILABLE"
-                };
-                await _unitOfWork.RoomRepository.CretaeAsync(room);
-                return 1;
-
-
-            }
-            catch (Exception ex) { }
-            return 0;
-        }
-        public async Task<int> Update(int id,Room room)
-        {
-            try
-            {
-                var exisitingRoom = await GetRoomById(id);
-                if (exisitingRoom != null)
-                {
-                    return await _unitOfWork.RoomRepository.UpdateAsync(room);
-                }
-                return 0;
                 
+                room.Status = "AVAILABLE";
+
+                
+                await _unitOfWork.RoomRepository.CretaeAsync(room);
+                return 1; 
             }
-            catch (Exception ex) { }
-            return 0;
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Lỗi khi tạo phòng mới"); 
+                return 0;
+            }
         }
-        public async Task<bool> Delete(int id)
+        public async Task<int> Update(int id, Room room)
         {
             try
             {
-                var exisitingRoom = await GetRoomById(id);
-                if (exisitingRoom != null)
-                {
-                    return await _unitOfWork.RoomRepository.DeleteAsync(id);
-                }
-                return false;
+                
+                room.RoomId = id;
 
+                
+                var existingRoom = await GetRoomById(id);
+                if (existingRoom == null)
+                {
+                    return 0; 
+                }
+
+                return await _unitOfWork.RoomRepository.UpdateAsync(room);
             }
-            catch (Exception ex) { }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Lỗi khi cập nhật phòng: {RoomId}", id);
+                return 0;
+            }
+        }
+        public async Task<bool> DeleteAsync(int id)
+        {
+            // Dùng FindAsync để lấy đối tượng được theo dõi
+            var room = await _context.Rooms.FindAsync(id);
+
+            if (room != null)
+            {
+                _context.Rooms.Remove(room);
+                await _context.SaveChangesAsync();
+                return true;
+            }
             return false;
         }
 
