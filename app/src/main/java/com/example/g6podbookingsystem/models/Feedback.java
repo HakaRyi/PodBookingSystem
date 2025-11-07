@@ -9,7 +9,7 @@ public class Feedback implements Serializable {
     private int bookingId;
     private String description;
     private Integer rating; // Có thể null
-    private Date timestamp;
+    private String timestamp;
 
     // Nếu bạn có model Booking riêng (như Booking.java), có thể thêm:
     private Booking booking;
@@ -18,7 +18,7 @@ public class Feedback implements Serializable {
     public Feedback() {
     }
 
-    public Feedback(int feedbackId, int bookingId, String description, Integer rating, Date timestamp) {
+    public Feedback(int feedbackId, int bookingId, String description, Integer rating, String timestamp) {
         this.feedbackId = feedbackId;
         this.bookingId = bookingId;
         this.description = description;
@@ -59,11 +59,11 @@ public class Feedback implements Serializable {
         this.rating = rating;
     }
 
-    public Date getTimestamp() {
+    public String getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(Date timestamp) {
+    public void setTimestamp(String timestamp) {
         this.timestamp = timestamp;
     }
 

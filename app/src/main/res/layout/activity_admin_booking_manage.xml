@@ -4,7 +4,7 @@
     android:id="@+id/coordinator"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#378742">
+    android:background="#DDE7DE">
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/nav_host_fragment"

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#F9FAFB">
+
+    <!-- Header -->
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_margin="10dp"
+        android:elevation="4dp"
+        app:cardCornerRadius="12dp"
+        app:cardBackgroundColor="#FFFFFF">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingHorizontal="12dp"
+            android:gravity="center_vertical">
+
+            <!-- Back button -->
+            <ImageView
+                android:id="@+id/btnBack"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_centerVertical="true"
+                android:src="@drawable/ic_back"
+                android:contentDescription="Back"
+                android:padding="6dp"
+                android:background="?selectableItemBackgroundBorderless"
+                android:layout_alignParentStart="true" />
+
+            <!-- Title -->
+            <TextView
+                android:id="@+id/tvTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Accounts"
+                android:textStyle="bold"
+                android:textSize="20sp"
+                android:textColor="#222222"
+                android:layout_centerInParent="true"
+                android:fontFamily="@font/poppins" />
+
+        </RelativeLayout>
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginHorizontal="10dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="10dp"
+        app:cardCornerRadius="14dp"
+        android:elevation="2dp"
+        app:cardBackgroundColor="#FFFFFF">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerList"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="8dp"
+            android:scrollbars="vertical" />
+    </androidx.cardview.widget.CardView>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/btnAddAccount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|bottom"
+        android:layout_margin="20dp"
+        android:src="@drawable/ic_lock"
+        android:tint="@android:color/white"
+        app:backgroundTint="#3498DB"
+        android:contentDescription="Add Account"/>
+
+
+
+</LinearLayout>

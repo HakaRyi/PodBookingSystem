@@ -1,12 +1,22 @@
 package com.example.g6podbookingsystem.models;
 
+import com.google.gson.annotations.SerializedName;
+
 public class Account {
+    @SerializedName("accId")
     public int accId;
-    public String email;
+    @SerializedName("name")
     public String name;
+    @SerializedName("password")
+    public String password;
+    @SerializedName("phone")
     public String phone;
-    public String avatarUrl;
+    @SerializedName("email")
+    public String email;
+    @SerializedName("roleId")
     public int roleId;
+    @SerializedName("avatarUrl")
+    public String avatarUrl;
 
     public int getAccId() {
         return accId;

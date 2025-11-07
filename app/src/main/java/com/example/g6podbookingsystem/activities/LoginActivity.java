@@ -34,8 +34,8 @@ public class LoginActivity extends AppCompatActivity {
     private SharedPrefManager pref;
     private LoadingDialog loadingDialog;
 
-    private static final String ADMIN_EMAIL = "admin@pod.com";
-    private static final String ADMIN_PASSWORD = "Admin123!";
+    private static final String ADMIN_EMAIL = "1";
+    private static final String ADMIN_PASSWORD = "1";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

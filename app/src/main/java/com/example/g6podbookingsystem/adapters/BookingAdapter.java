@@ -1,15 +1,18 @@
 package com.example.g6podbookingsystem.adapters;
 
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -38,7 +41,7 @@ public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingV
     @Override
     public BookingViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_booking, parent, false);
+               .inflate(R.layout.item_booking, parent, false);
         return new BookingViewHolder(view);
     }
 
@@ -58,6 +61,7 @@ public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingV
         ImageView imgAvatar;
 
         BookingApi bookingApi;
+        ImageButton btnDelete;
 
         public BookingViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -67,6 +71,9 @@ public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingV
             btnCheckIn = itemView.findViewById(R.id.btnCheckIn);
             btnCheckOut = itemView.findViewById(R.id.btnCheckOut);
             imgAvatar = itemView.findViewById(R.id.imgAvatar);
+            btnDelete = itemView.findViewById(R.id.btnDelete);
+
+            bookingApi = BookingRepository.getBookingService();
         }
 
         public void bind(Booking b) {
@@ -119,11 +126,11 @@ public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingV
                 bookingApi.checkIn(b.getBookingId()).enqueue(new Callback<Integer>() {
                     @Override
                     public void onResponse(Call<Integer> call, Response<Integer> response) {
-                        if(response.isSuccessful() && response.body() != null && response.body() > 0){
+                        if (response.isSuccessful() && response.body() != null && response.body() > 0) {
                             b.setStatus("CHECK-IN");
                             notifyItemChanged(getAdapterPosition());
                             Toast.makeText(itemView.getContext(), "✅ Check-in thành công", Toast.LENGTH_SHORT).show();
-                        }else{
+                        } else {
                             Toast.makeText(itemView.getContext(), "check-in thất bại", Toast.LENGTH_SHORT).show();
                         }
                     }
@@ -142,12 +149,11 @@ public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingV
                 bookingApi.checkOut(b.getBookingId()).enqueue(new Callback<Integer>() {
                     @Override
                     public void onResponse(Call<Integer> call, Response<Integer> response) {
-                        if(response.isSuccessful() && response.body() != null && response.body() > 0){
+                        if (response.isSuccessful() && response.body() != null && response.body() > 0) {
                             b.setStatus("CHECK-OUT");
                             notifyItemChanged(getAdapterPosition());
                             Toast.makeText(itemView.getContext(), "✅ Check-out thành công", Toast.LENGTH_SHORT).show();
-                        }
-                        else{
+                        } else {
                             Toast.makeText(itemView.getContext(), "check-out thất bại", Toast.LENGTH_SHORT).show();
                         }
                     }
@@ -163,6 +169,51 @@ public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingV
                 Intent intent = new Intent(itemView.getContext(), BookingDetailActivity.class);
                 intent.putExtra("bookingId", b.getBookingId());
                 itemView.getContext().startActivity(intent);
+            });
+
+            if (btnDelete != null) {
+                btnDelete.setOnClickListener(v -> {
+                    // Hỏi xác nhận trước khi xóa
+                    new AlertDialog.Builder(itemView.getContext())
+                            .setTitle("Xác nhận xóa")
+                            .setMessage("Bạn có chắc chắn muốn xóa Booking #" + b.getBookingId() + "?")
+                            .setPositiveButton("Xóa", (dialog, which) -> {
+                                // Gọi API Delete
+                                deleteBookingApi(b.getBookingId());
+                            })
+                            .setNegativeButton("Hủy", null)
+                            .show();
+                });
+            }
+        }
+
+        // --- THÊM HÀM GỌI API DELETE ---
+        private void deleteBookingApi(int bookingId) {
+            bookingApi.deleteBooking(bookingId).enqueue(new Callback<Boolean>() {
+                @Override
+                public void onResponse(Call<Boolean> call, Response<Boolean> response) {
+                    if (response.isSuccessful() && response.body() != null && response.body() == true) {
+                        Toast.makeText(itemView.getContext(), "Đã xóa Booking #" + bookingId, Toast.LENGTH_SHORT).show();
+
+                        // Xóa item khỏi danh sách và cập nhật RecyclerView
+                        int currentPosition = getAdapterPosition();
+                        if (currentPosition != RecyclerView.NO_POSITION) {
+                            bookings.remove(currentPosition);
+                            notifyItemRemoved(currentPosition);
+                            notifyItemRangeChanged(currentPosition, bookings.size());
+                        }
+                    } else {
+                        Toast.makeText(itemView.getContext(), "Xóa thất bại", Toast.LENGTH_SHORT).show();
+                        Log.e("BookingAdapter", "Delete failed: " + response.message());
+
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<Boolean> call, Throwable t) {
+                    Toast.makeText(itemView.getContext(), "Lỗi mạng: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                    Log.e("BookingAdapter", "Delete network error: " + t.getMessage());
+                }
             });
         }
     }

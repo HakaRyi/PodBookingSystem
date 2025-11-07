@@ -12,6 +12,7 @@ public class Booking implements Serializable {
 
     private String customerName; // thêm để dễ hiển thị
     private List<BookingDetail> bookingDetails;
+    private List<RoomSlot> roomSlots;
     private Account user;
     private Feedback feedback;
     public Feedback getFeedback() {
@@ -31,7 +32,9 @@ public class Booking implements Serializable {
     public void setUser(Account user) {
         this.user = user;
     }
+    public  Booking(){
 
+    }
     public Booking(int bookingId, String customerName, String bookingDate, double total, String status) {
         this.bookingId = bookingId;
         this.customerName = customerName;
@@ -39,7 +42,13 @@ public class Booking implements Serializable {
         this.total = total;
         this.status = status;
     }
+    public List<RoomSlot> getRoomSlots() {
+        return roomSlots;
+    }
 
+    public void setRoomSlots(List<RoomSlot> roomSlots) {
+        this.roomSlots = roomSlots;
+    }
     // Getter / Setter
     public int getBookingId() { return bookingId; }
     public void setBookingId(int bookingId) { this.bookingId = bookingId; }

@@ -15,4 +15,16 @@ public class ApiClient {
         }
         return retrofit;
     }
+
+    public static RoomApi getRoomApi() {
+        return getClient().create(RoomApi.class);
+    }
+
+    public static BookingApi getBookingApi() {
+        return getClient().create(BookingApi.class);
+    }
+
+    public static AccountApi getAccountApi() {
+        return getClient().create(AccountApi.class);
+    }
 }
