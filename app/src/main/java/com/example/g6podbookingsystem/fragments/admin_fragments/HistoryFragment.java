@@ -1,6 +1,8 @@
 package com.example.g6podbookingsystem.fragments.admin_fragments;
 
 import android.app.DatePickerDialog;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -18,6 +20,7 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.g6podbookingsystem.R;
 import com.example.g6podbookingsystem.adapters.BookingHistoryAdapter;
@@ -87,23 +90,58 @@ public class HistoryFragment extends Fragment {
     }
 
     private void fetchBookings() {
-        api.getAllBookings().enqueue(new Callback<List<Booking>>() {
-            @Override
-            public void onResponse(Call<List<Booking>> call, Response<List<Booking>> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    fullList.clear();
-                    fullList.addAll(response.body());
-                    filteredList.clear();
-                    filteredList.addAll(fullList);
-                    adapter.notifyDataSetChanged();
+        SharedPreferences prefs = getContext().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
+        int userId = prefs.getInt("userId", -1);
+        String role = prefs.getString("role", "User"); // mặc định là User
+
+        if (role.equalsIgnoreCase("Admin")) {
+            // 🧭 Admin → gọi API lấy tất cả booking
+            api.getAllBookings().enqueue(new Callback<List<Booking>>() {
+                @Override
+                public void onResponse(Call<List<Booking>> call, Response<List<Booking>> response) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        fullList.clear();
+                        fullList.addAll(response.body());
+                        filteredList.clear();
+                        filteredList.addAll(fullList);
+                        adapter.notifyDataSetChanged();
+                    } else {
+                        Toast.makeText(getContext(), "Không có dữ liệu đặt chỗ.", Toast.LENGTH_SHORT).show();
+                    }
                 }
+
+                @Override
+                public void onFailure(Call<List<Booking>> call, Throwable t) {
+                    Toast.makeText(getContext(), "Lỗi kết nối server!", Toast.LENGTH_SHORT).show();
+                }
+            });
+        } else {
+            // 👤 User thường → chỉ lấy lịch sử của riêng họ
+            if (userId == -1) {
+                Toast.makeText(getContext(), "Không tìm thấy thông tin người dùng!", Toast.LENGTH_SHORT).show();
+                return;
             }
 
-            @Override
-            public void onFailure(Call<List<Booking>> call, Throwable t) {
-                t.printStackTrace();
-            }
-        });
+            api.getUserBookingHistory(userId).enqueue(new Callback<List<Booking>>() {
+                @Override
+                public void onResponse(Call<List<Booking>> call, Response<List<Booking>> response) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        fullList.clear();
+                        fullList.addAll(response.body());
+                        filteredList.clear();
+                        filteredList.addAll(fullList);
+                        adapter.notifyDataSetChanged();
+                    } else {
+                        Toast.makeText(getContext(), "Không có lịch sử đặt chỗ.", Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<List<Booking>> call, Throwable t) {
+                    Toast.makeText(getContext(), "Lỗi kết nối server!", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
     }
 
     private void setupSearch() {
@@ -158,4 +196,6 @@ public class HistoryFragment extends Fragment {
         }
         adapter.notifyDataSetChanged();
     }
+
+
 }

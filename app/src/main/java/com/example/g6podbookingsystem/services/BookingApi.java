@@ -56,4 +56,7 @@ public interface BookingApi {
     Call<Integer> checkOut(@Path("id") int bookingId);
     @PUT("api/Booking/Cancel/{id}")
     Call<Integer> cancelBooking(@Path("id") int bookingId, @Query("message") String reason);
+    @GET("api/Booking/user/{userId}/history")
+    Call<List<Booking>> getUserBookingHistory(@Path("userId") int userId);
+
 }
