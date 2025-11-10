@@ -1,7 +1,11 @@
 package com.example.g6podbookingsystem.services;
 
+import com.example.g6podbookingsystem.dto.CreateAccountRequest;
+import com.example.g6podbookingsystem.models.Account;
 import com.example.g6podbookingsystem.models.Room;
+
 import java.util.List;
+
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
@@ -11,9 +15,14 @@ import retrofit2.http.PUT;
 import retrofit2.http.Path;
 
 public interface RoomApi {
+
     @GET("api/Room")
     Call<List<Room>> getAllRooms();
 
+    @GET("api/Room/3latest")
+    Call<List<Room>> get3Rooms();
+    @GET("api/Room/newest")
+    Call<List<Room>> getNewestRooms();
     @GET("api/Room/{id}")
     Call<Room> getRoomById(@Path("id") int roomId);
 

@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
@@ -18,10 +20,26 @@
 
 
         <activity
-            android:name=".activities.AdminBookingHistoryActivity"
+            android:name=".activities.BookingSummaryActivity"
             android:exported="false" />
         <activity
+            android:name=".activities.UserBookingDetailActivity"
+            android:exported="false" /> <!-- <activity -->
+        <!-- android:name=".activities.AdminBookingHistoryActivity" -->
+        <!-- android:exported="false" /> -->
+        <activity
+            android:name=".activities.FindRoomActivity"
+            android:exported="false"
+            android:parentActivityName=".activities.DashboardActivity" />
+        <activity
             android:name=".activities.BookingDetailActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.RoomDetailActivity"
+            android:exported="false"
+            android:parentActivityName=".activities.DashboardActivity" />
+        <activity
+            android:name=".activities.DashboardActivity"
             android:exported="false" />
         <activity
             android:name=".activities.AdminBookingManageActivity"
@@ -33,6 +51,30 @@
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".activities.PaymentResultActivity"
+            android:exported="true">
+
+            <!-- payment-success -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="g6podbookingsystem"
+                    android:host="payment-success" />
+            </intent-filter>
+
+            <!-- payment-cancel -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="g6podbookingsystem"
+                    android:host="payment-cancel" />
             </intent-filter>
         </activity>
         <activity

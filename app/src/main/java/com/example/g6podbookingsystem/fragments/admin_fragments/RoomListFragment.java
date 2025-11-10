@@ -14,7 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.g6podbookingsystem.R;
-import com.example.g6podbookingsystem.adapters.RoomAdapter;
+import com.example.g6podbookingsystem.adapters.RoomAdminAdapter;
 import com.example.g6podbookingsystem.models.Room;
 import com.example.g6podbookingsystem.services.ApiClient;
 import com.example.g6podbookingsystem.services.RoomApi;
@@ -29,12 +29,12 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class RoomListFragment extends Fragment implements RoomAdapter.OnRoomListener {
+public class RoomListFragment extends Fragment implements RoomAdminAdapter.OnRoomListener {
 
     private static final String TAG = "RoomListFragment";
 
     private RecyclerView recyclerView;
-    private RoomAdapter roomAdapter;
+    private RoomAdminAdapter roomAdapter;
     private List<Room> roomList = new ArrayList<>();
     private RoomApi roomApi;
 
@@ -73,7 +73,7 @@ public class RoomListFragment extends Fragment implements RoomAdapter.OnRoomList
     }
 
     private void setupRecyclerView() {
-        roomAdapter = new RoomAdapter(this);
+        roomAdapter = new RoomAdminAdapter(this);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(roomAdapter);
     }

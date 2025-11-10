@@ -1,46 +1,77 @@
 package com.example.g6podbookingsystem.adapters;
+
+import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
+import com.bumptech.glide.Glide;
 import com.example.g6podbookingsystem.R;
+import com.example.g6podbookingsystem.activities.RoomDetailActivity;
 import com.example.g6podbookingsystem.models.Room;
-import com.squareup.picasso.Picasso; // Thư viện tuyệt vời để load ảnh, thêm vào build.gradle
-
+import com.google.android.material.button.MaterialButton;
 import java.text.NumberFormat;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-// Bạn cần thêm thư viện Picasso:
-// implementation 'com.squareup.picasso:picasso:2.71828' (hoặc 2.8)
-
 public class RoomAdapter extends RecyclerView.Adapter<RoomAdapter.RoomViewHolder> {
 
-    private List<Room> roomList = new ArrayList<>();
-    private OnRoomListener onRoomListener;
+    private List<Room> roomList;
+    private Context context;
+    private OnItemClickListener listener;
 
-    public RoomAdapter(OnRoomListener onRoomListener) {
-        this.onRoomListener = onRoomListener;
+    public RoomAdapter(Context context, List<Room> roomList) {
+        this.context = context;
+        this.roomList = roomList;
     }
 
     @NonNull
     @Override
     public RoomViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_room, parent, false);
-        return new RoomViewHolder(view, onRoomListener);
+        View view = LayoutInflater.from(context).inflate(R.layout.item_pod_card, parent, false);
+        return new RoomViewHolder(view);
     }
-
+    public interface OnItemClickListener {
+        void onItemClick(Room room);
+    }
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        this.listener = listener;
+    }
     @Override
     public void onBindViewHolder(@NonNull RoomViewHolder holder, int position) {
         Room room = roomList.get(position);
-        holder.bind(room);
+
+        holder.tvRoomName.setText(room.getName());
+        holder.tvRoomType.setText(room.getType() != null ? room.getType().getName().trim() : "Phòng");
+        holder.tvPrice.setText(formatPrice(room.getPrice()) + "/giờ");
+
+        // Load ảnh (nếu có)
+        if (room.getImgUrl() != null && !room.getImgUrl().isEmpty()) {
+            Glide.with(context).load(room.getImgUrl()).placeholder(R.drawable.ic_pod_placeholder).into(holder.imgPod);
+        }
+
+        // Click card → chi tiết
+        holder.itemView.setOnClickListener(v -> {
+            Intent intent = new Intent(context, RoomDetailActivity.class);
+            intent.putExtra("room", room);
+            context.startActivity(intent);
+        });
+
+        // Nút Book
+        holder.btnBook.setOnClickListener(v -> {
+            Intent intent = new Intent(context, RoomDetailActivity.class);
+            intent.putExtra("room", room);
+            context.startActivity(intent);
+        });
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onItemClick(roomList.get(position));
+            }
+        });
     }
 
     @Override
@@ -48,56 +79,24 @@ public class RoomAdapter extends RecyclerView.Adapter<RoomAdapter.RoomViewHolder
         return roomList.size();
     }
 
-    public void setRooms(List<Room> rooms) {
-        this.roomList = rooms;
-        notifyDataSetChanged();
+    private String formatPrice(Double price) {
+        if (price == null) return "0đ";
+        NumberFormat formatter = NumberFormat.getInstance(new Locale("vi", "VN"));
+        return formatter.format(price);
     }
 
-    // ----- ViewHolder -----
-    static class RoomViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    static class RoomViewHolder extends RecyclerView.ViewHolder {
+        ImageView imgPod;
+        TextView tvRoomName, tvRoomType, tvPrice;
+        MaterialButton btnBook;
 
-        ImageView imgRoom;
-        TextView tvRoomName, tvRoomPrice, tvRoomStatus;
-        OnRoomListener onRoomListener;
-        NumberFormat formatter = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
-
-
-        public RoomViewHolder(@NonNull View itemView, OnRoomListener onRoomListener) {
+        public RoomViewHolder(@NonNull View itemView) {
             super(itemView);
-            imgRoom = itemView.findViewById(R.id.img_room);
-            tvRoomName = itemView.findViewById(R.id.tv_room_name);
-            tvRoomPrice = itemView.findViewById(R.id.tv_room_price);
-            tvRoomStatus = itemView.findViewById(R.id.tv_room_status);
-            this.onRoomListener = onRoomListener;
-
-            itemView.setOnClickListener(this);
+            imgPod = itemView.findViewById(R.id.imgPod);
+            tvRoomName = itemView.findViewById(R.id.tvRoomName);
+            tvRoomType = itemView.findViewById(R.id.tvRoomType);
+            tvPrice = itemView.findViewById(R.id.tvPrice);
+            btnBook = itemView.findViewById(R.id.btnBook);
         }
-
-        public void bind(Room room) {
-            tvRoomName.setText(room.getName());
-            tvRoomPrice.setText("Giá: " + formatter.format(room.getPrice()));
-            tvRoomStatus.setText(room.getStatus());
-
-            // Load ảnh từ URL
-            if (room.getImgUrl() != null && !room.getImgUrl().isEmpty()) {
-                Picasso.get()
-                        .load(room.getImgUrl())
-                        .placeholder(R.drawable.ic_baseline_house_24) // Ảnh mặc định
-                        .error(R.drawable.ic_baseline_error_24) // Ảnh khi lỗi
-                        .into(imgRoom);
-            } else {
-                imgRoom.setImageResource(R.drawable.ic_baseline_house_24);
-            }
-        }
-
-        @Override
-        public void onClick(View v) {
-            onRoomListener.onRoomClick(getAdapterPosition());
-        }
-    }
-
-    // ----- Interface để xử lý click -----
-    public interface OnRoomListener {
-        void onRoomClick(int position);
     }
 }

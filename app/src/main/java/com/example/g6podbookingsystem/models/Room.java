@@ -38,6 +38,9 @@ public class Room implements Parcelable {
         @SerializedName("imgUrl")
         private String imgUrl;
 
+        private RoomType type;
+
+
         // Các navigation properties (BookingDetails, RoomSlots, Type)
         // thường được bỏ qua trong các request POST/PUT
         // và chỉ dùng để hiển thị (nếu cần).
@@ -120,6 +123,8 @@ public class Room implements Parcelable {
         public void setImgUrl(String imgUrl) {
                 this.imgUrl = imgUrl;
         }
+
+        public RoomType getType() { return type; }
 
 
         // ----- Triển khai Parcelable -----

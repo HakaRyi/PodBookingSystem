@@ -49,7 +49,12 @@ public interface BookingApi {
     }
     @PUT("api/Booking/Check-in/{id}")
     Call<Integer> checkIn(@Path("id") int bookingId);
+    @POST("api/Booking/pay/{bookingId}")
+    Call<PayOsResponse> createPayment(@Path("bookingId") int bookingId);
 
+    public static class PayOsResponse {
+        public String checkoutUrl;
+    }
     @PUT("api/Booking/Checkout/{id}")
     Call<Integer> checkOut(@Path("id") int bookingId);
     @PUT("api/Booking/Cancel/{id}")
