@@ -23,7 +23,7 @@ public class PaymentResultActivity extends AppCompatActivity {
             intent.putExtra("open_fragment", "bookings");
         } else {
 //            Toast.makeText(this, "Thanh toán thất bại hoặc bị hủy.", Toast.LENGTH_LONG).show();
-            intent.putExtra("open_fragment", "home");
+            intent.putExtra("open_fragment", "bookings");
         }
 
         startActivity(intent);

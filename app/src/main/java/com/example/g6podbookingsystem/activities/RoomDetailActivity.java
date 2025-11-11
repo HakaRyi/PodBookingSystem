@@ -37,7 +37,7 @@ public class RoomDetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_room_detail);
 
-        room = (Room) getIntent().getSerializableExtra("room");
+        room = (Room) getIntent().getParcelableExtra("room");
         if (room == null) {
             finish();
             return;

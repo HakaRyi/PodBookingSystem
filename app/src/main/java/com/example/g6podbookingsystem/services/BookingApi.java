@@ -1,6 +1,7 @@
 package com.example.g6podbookingsystem.services;
 
 import com.example.g6podbookingsystem.models.Booking;
+import com.example.g6podbookingsystem.models.BookingHistoryDto;
 
 import java.util.List;
 
@@ -61,5 +62,7 @@ public interface BookingApi {
     Call<Integer> cancelBooking(@Path("id") int bookingId, @Query("message") String reason);
     @GET("api/Booking/user/{userId}/history")
     Call<List<Booking>> getUserBookingHistory(@Path("userId") int userId);
+    @GET("api/Booking/user/history")
+    Call<List<BookingHistoryDto>> getUserBookingHistory2();
 
 }

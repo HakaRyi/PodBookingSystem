@@ -19,7 +19,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.g6podbookingsystem.R;
 import com.example.g6podbookingsystem.adapters.BookingHistoryAdapter;
+import com.example.g6podbookingsystem.adapters.BookingHistoryUserAdapter;
 import com.example.g6podbookingsystem.models.Booking;
+import com.example.g6podbookingsystem.models.BookingHistoryDto;
 import com.example.g6podbookingsystem.repositories.BookingRepository;
 import com.example.g6podbookingsystem.services.BookingApi;
 
@@ -35,9 +37,9 @@ public class UserHistoryFragment extends Fragment {
 
     private RecyclerView rvUserBookingHistory;
     private EditText etUserHistorySearch;
-    private BookingHistoryAdapter adapter;
-    private List<Booking> fullList = new ArrayList<>();
-    private List<Booking> filteredList = new ArrayList<>();
+    private BookingHistoryUserAdapter adapter;
+    private List<BookingHistoryDto> fullList = new ArrayList<>();
+    private List<BookingHistoryDto> filteredList = new ArrayList<>();
     private BookingApi api;
 
     @Nullable
@@ -50,7 +52,7 @@ public class UserHistoryFragment extends Fragment {
         etUserHistorySearch = view.findViewById(R.id.etUserHistorySearch);
 
         rvUserBookingHistory.setLayoutManager(new LinearLayoutManager(getContext()));
-        adapter = new BookingHistoryAdapter(getContext(), filteredList);
+        adapter = new BookingHistoryUserAdapter(getContext(), filteredList);
         rvUserBookingHistory.setAdapter(adapter);
 
         api = BookingRepository.getBookingService();
@@ -71,17 +73,10 @@ public class UserHistoryFragment extends Fragment {
     }
 
     private void fetchUserHistory() {
-        SharedPreferences prefs = getContext().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
-        int userId = prefs.getInt("userId", -1);
 
-        if (userId == -1) {
-            Toast.makeText(getContext(), "Không tìm thấy người dùng!", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        api.getUserBookingHistory(userId).enqueue(new Callback<List<Booking>>() {
+        api.getUserBookingHistory2().enqueue(new Callback<List<BookingHistoryDto>>() {
             @Override
-            public void onResponse(Call<List<Booking>> call, Response<List<Booking>> response) {
+            public void onResponse(Call<List<BookingHistoryDto>> call, Response<List<BookingHistoryDto>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     fullList.clear();
                     fullList.addAll(response.body());
@@ -94,7 +89,7 @@ public class UserHistoryFragment extends Fragment {
             }
 
             @Override
-            public void onFailure(Call<List<Booking>> call, Throwable t) {
+            public void onFailure(Call<List<BookingHistoryDto>> call, Throwable t) {
                 Toast.makeText(getContext(), "Lỗi kết nối server!", Toast.LENGTH_SHORT).show();
             }
         });
@@ -102,12 +97,18 @@ public class UserHistoryFragment extends Fragment {
 
     private void filterList(String keyword) {
         filteredList.clear();
-        for (Booking b : fullList) {
-            if (b.getBookingDetails().get(0).getRoom().getName().toLowerCase(Locale.ROOT)
-                    .contains(keyword.toLowerCase(Locale.ROOT))) {
+        String lowerKeyword = keyword.toLowerCase(Locale.ROOT);
+
+        for (BookingHistoryDto b : fullList) {
+            String roomName = "Không xác định";
+            if (b.getDetails() != null && !b.getDetails().isEmpty()) {
+                roomName = b.getDetails().get(0).getRoomName();
+            }
+
+            if (roomName.toLowerCase(Locale.ROOT).contains(lowerKeyword)) {
                 filteredList.add(b);
             }
         }
-        adapter.notifyDataSetChanged();
+        adapter.updateList(filteredList);
     }
 }

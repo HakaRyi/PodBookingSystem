@@ -15,8 +15,11 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.g6podbookingsystem.R;
+import com.example.g6podbookingsystem.adapters.SlotAdapter;
 import com.example.g6podbookingsystem.fragments.admin_fragments.BookingUserFragment;
 import com.example.g6podbookingsystem.models.Room;
 import com.example.g6podbookingsystem.models.Slot;
@@ -48,7 +51,8 @@ public class UserBookingDetailActivity extends AppCompatActivity {
 
     private TextInputEditText etDate, etStartTime, etEndTime, etHours;
     private MaterialButton btnHourMode, btnDayMode, btnContinue;
-    private ListView listViewSlots;
+    private RecyclerView listViewSlots;
+    private SlotAdapter slotAdapter;
     private LinearLayout layoutSlots;
     private TextView tvRoomName;
 
@@ -60,7 +64,7 @@ public class UserBookingDetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_user_booking_detail);
 
-        room = (Room) getIntent().getSerializableExtra("room");
+        room = (Room) getIntent().getParcelableExtra("room");
         bookingId = getIntent().getIntExtra("bookingId", -1);
         if (room == null || bookingId == -1) {
             finish();
@@ -89,6 +93,7 @@ public class UserBookingDetailActivity extends AppCompatActivity {
         btnContinue = findViewById(R.id.btnContinue);
 
         listViewSlots = findViewById(R.id.listViewSlots);
+        listViewSlots.setLayoutManager(new LinearLayoutManager(this));
         layoutSlots = findViewById(R.id.layoutSlots);
 
         btnContinue.setOnClickListener(v -> goToSummary());
@@ -170,39 +175,19 @@ public class UserBookingDetailActivity extends AppCompatActivity {
     }
 
     private void updateSlotListView() {
-        List<String> slotNames = allSlots.stream()
-                .map(s -> s.getDescription() + " (Slot " + s.getSlotId() + ")")
-                .collect(Collectors.toList());
-
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_list_item_multiple_choice, slotNames);
-        listViewSlots.setAdapter(adapter);
-
-        // XÓA CHECK CŨ
-        listViewSlots.clearChoices();
-        adapter.notifyDataSetChanged();
-
-        listViewSlots.setOnItemClickListener((parent, view, position, id) -> {
-            selectedSlots.clear();
-
-            SparseBooleanArray checked = listViewSlots.getCheckedItemPositions();
-            for (int i = 0; i < checked.size(); i++) {
-                if (checked.valueAt(i)) {
-                    selectedSlots.add(allSlots.get(checked.keyAt(i)));
-                }
-            }
-
+        slotAdapter = new SlotAdapter(allSlots, selectedSlots, () -> {
+            // Khi chọn thay đổi → cập nhật giờ
             selectedSlots.sort((a, b) -> Integer.compare(a.getSlotId(), b.getSlotId()));
-
             if (!isConsecutive(selectedSlots)) {
+                // Tự động bỏ chọn không liên tiếp
                 Toast.makeText(this, "Vui lòng chọn các slot liên tiếp!", Toast.LENGTH_LONG).show();
-                listViewSlots.setItemChecked(position, false);
-                selectedSlots.removeIf(s -> s.getSlotId() == allSlots.get(position).getSlotId());
-                updateTimeFromSlots();
-            } else {
-                updateTimeFromSlots();
+                selectedSlots.clear();
+                slotAdapter.notifyDataSetChanged();
             }
+            updateTimeFromSlots();
         });
+
+        listViewSlots.setAdapter(slotAdapter);
     }
 
     private boolean isConsecutive(List<Slot> slots) {

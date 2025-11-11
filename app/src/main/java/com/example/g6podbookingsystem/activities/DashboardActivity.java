@@ -8,6 +8,7 @@ import com.example.g6podbookingsystem.fragments.admin_fragments.BookingUserFragm
 import com.example.g6podbookingsystem.fragments.admin_fragments.HomeUserFragment;
 import com.example.g6podbookingsystem.fragments.admin_fragments.ProfileUserFragment;
 import com.example.g6podbookingsystem.fragments.admin_fragments.HomeUserFragment;
+import com.example.g6podbookingsystem.fragments.user_fragments.UserHistoryFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class DashboardActivity extends AppCompatActivity {
@@ -46,7 +47,7 @@ public class DashboardActivity extends AppCompatActivity {
                 if (itemId == R.id.nav_home) {
                     selectedFragment = new HomeUserFragment();
                 } else if (itemId == R.id.nav_bookings) {
-                    selectedFragment = new BookingUserFragment();
+                    selectedFragment = new UserHistoryFragment();
                 } else if (itemId == R.id.nav_profile) {
                     selectedFragment = new ProfileUserFragment();
                 }
