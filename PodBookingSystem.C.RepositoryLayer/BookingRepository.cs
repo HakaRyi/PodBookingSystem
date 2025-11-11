@@ -26,6 +26,16 @@ namespace PodBookingSystem.C.RepositoryLayer
             .OrderByDescending(b => b.BookingDate)
             .AsNoTracking()
             .ToListAsync();
+        public async Task<List<Booking>> GetBookingsNotPendingAsync() => await _context.Bookings
+            .Include(b => b.BookingDetails)
+                .ThenInclude(bd => bd.Room)
+            .Include(b => b.User)
+            .Include(b => b.RoomSlots)
+            .Include(b => b.Payment)
+            .Include(b => b.Feedback)
+            .Where(b => b.Status != "PENDING")
+            .AsNoTracking()
+            .ToListAsync();
         public async Task<List<Booking>> GetBookingsByBOOKEDAsync() => await _context.Bookings
             .Include(b => b.BookingDetails)
                 .ThenInclude(bd => bd.Room)

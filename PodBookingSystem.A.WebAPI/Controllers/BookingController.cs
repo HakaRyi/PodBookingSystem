@@ -214,5 +214,21 @@ namespace PodBookingSystem.A.WebAPI.Controllers
 
             return Ok(history);
         }
+        [HttpGet("user/history")]
+        public async Task<IActionResult> GetUserBookingHistory2()
+        {
+            var decodedToken = await FirebaseTokenHelper.VerifyFirebaseTokenAsync(Request);
+            var email = decodedToken.Claims.ContainsKey("email")
+            ? decodedToken.Claims["email"].ToString()
+            : null;
+            var user = await _accountService.GetAccountByEmailAsync(email);
+
+            var history = await _bookingService.GetUserBookingHistoryAsync(user.AccId);
+
+            if (!history.Any())
+                return NotFound(new { message = "Không có lịch sử đặt chỗ nào cho user này." });
+
+            return Ok(history);
+        }
     }
 }

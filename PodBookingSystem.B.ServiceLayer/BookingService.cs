@@ -263,11 +263,11 @@ namespace PodBookingSystem.B.ServiceLayer
         }
         public async Task<List<BookingHistoryDto>> GetUserBookingHistoryAsync(int userId)
         {
-            var bookings = await _unitOfWork.BookingRepository.GetBookingsAsync();
+            var bookings = await _unitOfWork.BookingRepository.GetBookingsNotPendingAsync();
 
             var userBookings = bookings
                 .Where(b => b.UserId == userId)
-                .OrderByDescending(b => b.BookingDate)
+                .OrderByDescending(b => b.BookingId)
                 .Select(b => new BookingHistoryDto
                 {
                     BookingId = b.BookingId,
@@ -275,6 +275,7 @@ namespace PodBookingSystem.B.ServiceLayer
                     Total = b.Total,
                     Status = b.Status,
                     CancelReason = b.CancelReason,
+                    UserName = b.User?.Name ?? "Khách vãng lai",
                     CancelDate = b.CancelDate,
                     FeedbackComment = b.Feedback?.Description,
                     Details = b.BookingDetails.Select(d => new BookingDetailDto

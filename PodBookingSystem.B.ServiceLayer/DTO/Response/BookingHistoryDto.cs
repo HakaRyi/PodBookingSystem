@@ -14,7 +14,7 @@ namespace PodBookingSystem.B.ServiceLayer.DTO.Response
         public string Status { get; set; }
         public string? CancelReason { get; set; }
         public DateTime? CancelDate { get; set; }
-
+        public string UserName { get; set; } = string.Empty;
         public string? PaymentStatus { get; set; }
         public string? FeedbackComment { get; set; }
 
