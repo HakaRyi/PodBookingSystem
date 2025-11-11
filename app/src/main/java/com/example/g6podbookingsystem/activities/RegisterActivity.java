@@ -3,6 +3,7 @@ package com.example.g6podbookingsystem.activities;
 import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Patterns;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
@@ -30,7 +31,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class RegisterActivity extends AppCompatActivity {
-    private EditText edtEmail, edtPassword, edtName, edtPhone;
+    private EditText edtEmail, edtPassword, edtName, edtPhone,edtConfirmPassword;
     private Button btnRegister;
     private TextView tvLogin;
 
@@ -52,6 +53,7 @@ public class RegisterActivity extends AppCompatActivity {
 
         edtEmail = findViewById(R.id.edtEmail);
         edtPassword = findViewById(R.id.edtPassword);
+        edtConfirmPassword = findViewById(R.id.edtConfirmPassword);
         edtName = findViewById(R.id.edtName);
         edtPhone = findViewById(R.id.edtPhone);
         btnRegister = findViewById(R.id.btnRegister);
@@ -64,13 +66,40 @@ public class RegisterActivity extends AppCompatActivity {
     private void register() {
         String email = edtEmail.getText().toString().trim();
         String password = edtPassword.getText().toString().trim();
+        String confirmPassword = edtConfirmPassword.getText().toString().trim();
         String name = edtName.getText().toString().trim();
         String phone = edtPhone.getText().toString().trim();
 
-        if (email.isEmpty() || password.isEmpty()) {
+        if (email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty() || name.isEmpty() || phone.isEmpty()) {
             Toast.makeText(this, "Vui lòng nhập đầy đủ thông tin", Toast.LENGTH_SHORT).show();
             return;
         }
+        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            Toast.makeText(this, "Địa chỉ Email không hợp lệ!", Toast.LENGTH_SHORT).show();
+            edtEmail.setError("Email không hợp lệ");
+            edtEmail.requestFocus();
+            return;
+        }
+
+        String phoneRegex = "^0\\d{9}$";
+        if (!phone.matches(phoneRegex)) {
+            Toast.makeText(this, "Số điện thoại không hợp lệ (phải là 10 số, bắt đầu bằng 0)", Toast.LENGTH_LONG).show();
+            edtPhone.setError("Số điện thoại phải là 10 số");
+            edtPhone.requestFocus();
+            return;
+        }
+
+        if (password.length() < 6) {
+            Toast.makeText(this, "Mật khẩu phải có ít nhất 6 ký tự", Toast.LENGTH_SHORT).show();
+            edtPassword.setError("Mật khẩu quá ngắn");
+            edtPassword.requestFocus();
+            return;
+        }
+        if (!password.equals(confirmPassword)) {
+            Toast.makeText(this, "Mật khẩu xác nhận không khớp!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         CreateAccountRequest request = new CreateAccountRequest(email, name, phone);
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(task -> {

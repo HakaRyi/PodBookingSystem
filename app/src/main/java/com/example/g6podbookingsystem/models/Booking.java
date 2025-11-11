@@ -23,8 +23,6 @@ public class Booking implements Serializable {
         this.feedback = feedback;
     }
 
-
-
     public Account getUser() {
         return user;
     }

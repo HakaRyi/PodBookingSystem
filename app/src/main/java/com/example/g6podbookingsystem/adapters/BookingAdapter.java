@@ -23,7 +23,12 @@ import com.example.g6podbookingsystem.models.BookingDetail;
 import com.example.g6podbookingsystem.repositories.BookingRepository;
 import com.example.g6podbookingsystem.services.BookingApi;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -32,7 +37,6 @@ import retrofit2.Response;
 public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingViewHolder> {
 
     private List<Booking> bookings;
-
     public BookingAdapter(List<Booking> bookings) {
         this.bookings = bookings;
     }
@@ -62,6 +66,7 @@ public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingV
 
         BookingApi bookingApi;
         ImageButton btnDelete;
+        private SimpleDateFormat fullDateTimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
 
         public BookingViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -75,6 +80,24 @@ public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingV
 
             bookingApi = BookingRepository.getBookingService();
         }
+        private Date parseDateTime(String dateString, String timeString) {
+            if (dateString == null || timeString == null) {
+                Log.e("BookingAdapter", "Date hoặc Time bị null");
+                return null;
+            }
+
+            try {
+                String cleanTime = timeString.split("\\.")[0];
+                String fullDateTimeStr = dateString + " " + cleanTime;
+                return fullDateTimeFormat.parse(fullDateTimeStr);
+            } catch (ParseException e) {
+                Log.e("BookingAdapter", "Lỗi parse ngày giờ: " + dateString + " " + timeString, e);
+                return null;
+            } catch (Exception e) {
+                Log.e("BookingAdapter", "Lỗi không xác định khi parse: " + timeString, e);
+                return null;
+            }
+        }
 
         public void bind(Booking b) {
 
@@ -82,11 +105,15 @@ public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingV
                     ? b.getUser().getName()
                     : "Khách #" + b.getUserId();
 
-            // Lấy thời gian đầu tiên trong BookingDetail (nếu có)
+            String bookingDate = b.getBookingDate();
             String time = "N/A";
+            String startTimeStr = null;
+            String endTimeStr = null;
             if (b.getBookingDetails() != null && !b.getBookingDetails().isEmpty()) {
                 BookingDetail d = b.getBookingDetails().get(0);
                 time = d.getStartTime() + " - " + d.getEndTime();
+                startTimeStr = d.getStartTime();
+                endTimeStr = d.getEndTime();
             }
 
             if (b.getUser() != null && b.getUser().getAvatarUrl() != null) {
@@ -120,8 +147,40 @@ public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingV
                     btnCheckOut.setVisibility(View.GONE);
                     break;
             }
+            final String finalBookingDate = bookingDate;
+            final String finalStartTime = startTimeStr;
+            final String finalEndTime = endTimeStr;
 
             btnCheckIn.setOnClickListener(v -> {
+                if (finalBookingDate == null || finalStartTime == null) {
+                    Toast.makeText(itemView.getContext(), "Lỗi: Không tìm thấy thời gian booking", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                Date startTime = parseDateTime(finalBookingDate, finalStartTime);
+                Date endTime = parseDateTime(finalBookingDate, finalEndTime);
+                Date now = new Date();
+
+                if (startTime == null) {
+                    Toast.makeText(itemView.getContext(), "Lỗi: Không thể đọc định dạng thời gian", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if (endTime == null) {
+                    Toast.makeText(itemView.getContext(), "Lỗi: Không thể đọc định dạng thời gian", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if(now.after(endTime)){
+                    new AlertDialog.Builder(itemView.getContext())
+                            .setTitle("⚠️ Xác nhận Check-In Trễ")
+                            .setMessage("Đã quá hạn nhận phòng, vui lòng hủy đặt phòng")
+                            .setPositiveButton("OK", null)
+                            .show();
+                    return;
+                }
+                if (now.before(startTime)) {
+                    Toast.makeText(itemView.getContext(), "Chưa đến giờ check-in. Vui lòng đợi.", Toast.LENGTH_LONG).show();
+                    return;
+                }
+
                 bookingApi = BookingRepository.getBookingService();
                 bookingApi.checkIn(b.getBookingId()).enqueue(new Callback<Integer>() {
                     @Override
@@ -145,24 +204,63 @@ public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingV
             });
 
             btnCheckOut.setOnClickListener(v -> {
-                bookingApi = BookingRepository.getBookingService();
-                bookingApi.checkOut(b.getBookingId()).enqueue(new Callback<Integer>() {
-                    @Override
-                    public void onResponse(Call<Integer> call, Response<Integer> response) {
-                        if (response.isSuccessful() && response.body() != null && response.body() > 0) {
-                            b.setStatus("CHECK-OUT");
-                            notifyItemChanged(getAdapterPosition());
-                            Toast.makeText(itemView.getContext(), "✅ Check-out thành công", Toast.LENGTH_SHORT).show();
-                        } else {
-                            Toast.makeText(itemView.getContext(), "check-out thất bại", Toast.LENGTH_SHORT).show();
-                        }
-                    }
+                if (finalBookingDate == null || finalEndTime == null) {
+                    Toast.makeText(itemView.getContext(), "Lỗi: Không tìm thấy thời gian booking", Toast.LENGTH_SHORT).show();
+                    return;
+                }
 
-                    @Override
-                    public void onFailure(Call<Integer> call, Throwable t) {
-                        Toast.makeText(itemView.getContext(), "Lỗi server", Toast.LENGTH_SHORT).show();
+                Date endTime = parseDateTime(finalBookingDate, finalEndTime);
+                Date now = new Date();
+                boolean isOvertime = false;
+
+                if (endTime == null) {
+                    Toast.makeText(itemView.getContext(), "Lỗi: Không thể đọc định dạng thời gian", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                if (now.after(endTime)) {
+
+                    long diffInMillis = now.getTime() - endTime.getTime();
+                    long diffInMinutes = TimeUnit.MILLISECONDS.toMinutes(diffInMillis);
+                    String timeLateFormatted;
+                    if (diffInMinutes >= 60) {
+                        long hours = diffInMinutes / 60;
+                        long minutes = diffInMinutes % 60;
+                        timeLateFormatted = hours + " giờ " + minutes + " phút";
+                    } else {
+                        timeLateFormatted = diffInMinutes + " phút";
                     }
-                });
+                    String overtimeMsg = "Check-out trễ " + timeLateFormatted + ". Sẽ tính phụ phí.";
+                    new AlertDialog.Builder(itemView.getContext())
+                            .setTitle("⚠️ Xác nhận Check-out Trễ")
+                            .setMessage(overtimeMsg + "\n\nBạn có chắc chắn muốn check-out?")
+                            .setPositiveButton("Check-out", (dialog, which) -> {
+                                proceedWithCheckOutApi(b, true);
+                            })
+                            .setNegativeButton("Hủy", null)
+                            .show();
+
+                } else {
+                    proceedWithCheckOutApi(b, false); // false = không overtime
+                }
+//                bookingApi = BookingRepository.getBookingService();
+//                bookingApi.checkOut(b.getBookingId()).enqueue(new Callback<Integer>() {
+//                    @Override
+//                    public void onResponse(Call<Integer> call, Response<Integer> response) {
+//                        if (response.isSuccessful() && response.body() != null && response.body() > 0) {
+//                            b.setStatus("CHECK-OUT");
+//                            notifyItemChanged(getAdapterPosition());
+//                            Toast.makeText(itemView.getContext(), "✅ Check-out thành công", Toast.LENGTH_SHORT).show();
+//                        } else {
+//                            Toast.makeText(itemView.getContext(), "check-out thất bại", Toast.LENGTH_SHORT).show();
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onFailure(Call<Integer> call, Throwable t) {
+//                        Toast.makeText(itemView.getContext(), "Lỗi server", Toast.LENGTH_SHORT).show();
+//                    }
+//                });
             });
 
             itemView.setOnClickListener(v -> {
@@ -185,6 +283,34 @@ public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingV
                             .show();
                 });
             }
+        }
+
+        private void proceedWithCheckOutApi(Booking b, boolean isOvertime) {
+            if (bookingApi == null) {
+                bookingApi = BookingRepository.getBookingService();
+            }
+
+            bookingApi.checkOut(b.getBookingId()).enqueue(new Callback<Integer>() {
+                @Override
+                public void onResponse(Call<Integer> call, Response<Integer> response) {
+                    if (response.isSuccessful() && response.body() != null && response.body() > 0) {
+                        b.setStatus("CHECK-OUT");
+                        notifyItemChanged(getAdapterPosition());
+                        if (!isOvertime) {
+                            Toast.makeText(itemView.getContext(), "✅ Check-out thành công", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(itemView.getContext(), "✅ Đã xác nhận check-out trễ", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Toast.makeText(itemView.getContext(), "check-out thất bại", Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<Integer> call, Throwable t) {
+                    Toast.makeText(itemView.getContext(), "Lỗi server", Toast.LENGTH_SHORT).show();
+                }
+            });
         }
 
         // --- THÊM HÀM GỌI API DELETE ---
