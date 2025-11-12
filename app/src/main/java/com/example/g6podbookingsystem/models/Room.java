@@ -139,6 +139,7 @@ public class Room implements Parcelable {
                 typeId = in.readInt();
                 description = in.readString();
                 imgUrl = in.readString();
+                type = in.readParcelable(RoomType.class.getClassLoader());
         }
 
         @Override
@@ -152,6 +153,7 @@ public class Room implements Parcelable {
                 dest.writeInt(typeId);
                 dest.writeString(description);
                 dest.writeString(imgUrl);
+                dest.writeParcelable(type, flags);
         }
 
         @Override
